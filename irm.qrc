@@ -1,0 +1,7 @@
+ <!DOCTYPE RCC><RCC version="1.0">
+ <qresource>
+    <file>img/first.jpeg</file>
+    <file>img/second.jpg</file>
+    <file>img/third.png</file>
+ </qresource>
+ </RCC>
