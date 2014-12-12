@@ -4,12 +4,13 @@
 
 TEMPLATE = app
 TARGET = 
+VERSION = 0.1.0
 DEPENDPATH += . headers sources
 INCLUDEPATH += . headers
 
 QT += sql
 
 # Input
-HEADERS += headers/Window.h pages.h
-SOURCES += sources/main.cpp Window.cpp pages.cpp
+HEADERS += headers/Window.h pages.h DBFactory.h 
+SOURCES += sources/main.cpp Window.cpp pages.cpp DBFactory.cpp
 RESSOURCES += irm.qrc

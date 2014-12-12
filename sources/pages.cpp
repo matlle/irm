@@ -5,8 +5,41 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
 
      QSplitter *splitter = new QSplitter(this);
 
-     QListView *typeResident = new QListView;
-     QListView *residentName = new QListView;
+     QTreeView *typeResident = new QTreeView;
+         QStandardItemModel *typeModel = new QStandardItemModel;
+         QStandardItem *type1 = new QStandardItem("Etudiant");
+                        type1->setCheckable(true);
+         QStandardItem *type2 = new QStandardItem("Professionnel");
+                        type2->setCheckable(true);
+         QStandardItem *type3 = new QStandardItem("Autre");
+                        type3->setCheckable(true);
+         typeModel->appendRow(type1);
+         typeModel->appendRow(type2);
+         typeModel->appendRow(type3);
+         typeModel->setHorizontalHeaderLabels(QStringList("Type Resident"));
+
+         typeResident->setModel(typeModel);
+         typeResident->setMinimumWidth(130);
+
+     QTreeView *residentName = new QTreeView;
+         QStandardItemModel *nomModel = new QStandardItemModel;
+         QStandardItem *nom1 = new QStandardItem("Matlle");
+         QStandardItem *nom2 = new QStandardItem("Super Boy");
+         QStandardItem *nom3 = new QStandardItem("Alice");
+         QStandardItem *nom4 = new QStandardItem("Paul");
+         QStandardItem *nom5 = new QStandardItem("Eric");
+         nomModel->appendRow(nom1);
+         nomModel->appendRow(nom2);
+         nomModel->appendRow(nom3);
+         nomModel->appendRow(nom4);
+         nomModel->appendRow(nom5);
+         nomModel->setHorizontalHeaderLabels(QStringList("Nom Resident"));
+
+         residentName->setModel(nomModel);
+         residentName->setIndentation(0);
+         residentName->setMinimumWidth(130);
+        
+
      QWidget *infosResident = new QWidget(this);
          QLabel *textInfos = new QLabel(this);
                  textInfos->setText(QString("Informations: de la diaspora\nPays: Unknown\nSituation: Critical..."));
@@ -32,7 +65,6 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          infosResident->setStyleSheet("background-color: white;");
          infosResident->setLayout(infosLayout);
 
-     
      splitter->addWidget(typeResident);
      splitter->addWidget(residentName);
      splitter->addWidget(infosResident);
@@ -42,6 +74,8 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
      setLayout(mainLayout);
      
  }
+
+
 
  UpdatePage::UpdatePage(QWidget *parent)
      : QWidget(parent)

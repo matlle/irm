@@ -8,11 +8,13 @@
  */
 
 #include "Window.h"
+#include "DBFactory.h"
 #include "pages.h"
 
 Window::Window() {
-    
+
     initMainWindow();
+    QSqlDatabase db = DBFactory::getConnection(this);
 }
 
 void Window::initMainWindow() {
@@ -28,13 +30,30 @@ void Window::initMainWindow() {
     QMenu *menuFile = menuBar()->addMenu("&Fichier");
         QMenu *newElement = menuFile->addMenu("&Nouveau");
             QAction *actionNewResident = newElement->addAction("Nouveau resident");
+            QAction *actionNewTypeResident = newElement->addAction("Nouveau type resident");
+            newElement->addSeparator();
             QAction *actionNewBatiment = newElement->addAction("Nouveau batiment");
             QAction *actionNewChambre = newElement->addAction("Nouvelle chambre");
+        QMenu *exporter = menuFile->addMenu("&Exporter");
+            QAction *actionDocx = exporter->addAction("Exporter comme DOCX");
+            QAction *actionPdf = exporter->addAction("Exporter comme PDF");
         QAction *actionPrint = new QAction("&Imprimer", this);
         QAction *actionPrintPreview = new QAction("&Aperçu avant impression", this);
         QAction *actionDisconnect = new QAction("&Deconnexion", this);
         QAction *actionExit = new QAction("&Quitter", this);
+
+        // set shortcut
         actionExit->setShortcut(QKeySequence("Ctrl+Q"));
+
+        // set icons
+        actionNewResident->setIcon(QIcon("img/add_user.png"));
+        actionNewTypeResident->setIcon(QIcon("img/add_user_group.png"));
+        actionNewBatiment->setIcon(QIcon("img/bat.png"));
+        actionNewChambre->setIcon(QIcon("img/bed.png"));
+        actionPrint->setIcon(QIcon("img/filequickprint.png"));
+        actionPrintPreview->setIcon(QIcon("img/fileprint.png"));
+        actionDisconnect->setIcon(QIcon("img/exit.png"));
+        actionExit->setIcon(QIcon("img/stop.png"));
 
         menuFile->addSeparator();
         menuFile->addAction(actionPrint);
@@ -57,6 +76,7 @@ void Window::initMainWindow() {
     QToolBar *toolbar = addToolBar("IrmToolbar");
     QLineEdit *searchField = new QLineEdit;
     toolbar->addAction(actionNewResident);
+    toolbar->addAction(actionNewTypeResident);
     toolbar->addAction(actionNewBatiment);
     toolbar->addAction(actionNewChambre);
     toolbar->addSeparator();
@@ -68,8 +88,8 @@ void Window::initMainWindow() {
     m_contentsWidget->setViewMode(QListView::IconMode);
     m_contentsWidget->setIconSize(QSize(96, 84));
     m_contentsWidget->setMovement(QListView::Static);
-    m_contentsWidget->setMaximumWidth(110);
-    m_contentsWidget->setMinimumWidth(110);
+    m_contentsWidget->setMaximumWidth(117);
+    m_contentsWidget->setMinimumWidth(117);
     m_contentsWidget->setSpacing(6);
     m_contentsWidget->setObjectName("m_contentsWidget");
 
@@ -94,7 +114,7 @@ void Window::initMainWindow() {
     mainContainer->setLayout(mainLayout);
     setCentralWidget(mainContainer);
     statusBar()->showMessage("Ready");
-    
+    showMaximized(); 
     // Events
     QObject::connect(actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
