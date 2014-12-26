@@ -10,11 +10,12 @@
 #include "Window.h"
 #include "DBFactory.h"
 #include "pages.h"
+#include "ResidentDialog.h"
 
+QSqlDatabase db;
 Window::Window() {
-
     initMainWindow();
-    QSqlDatabase db = DBFactory::getConnection(this);
+    db = DBFactory::getConnection(this);
 }
 
 void Window::initMainWindow() {
@@ -75,6 +76,7 @@ void Window::initMainWindow() {
     // Toolbar stuff
     QToolBar *toolbar = addToolBar("IrmToolbar");
     QLineEdit *searchField = new QLineEdit;
+              searchField->setPlaceholderText(QString("Rechercher"));
     toolbar->addAction(actionNewResident);
     toolbar->addAction(actionNewTypeResident);
     toolbar->addAction(actionNewBatiment);
@@ -115,7 +117,10 @@ void Window::initMainWindow() {
     setCentralWidget(mainContainer);
     statusBar()->showMessage("Ready");
     showMaximized(); 
+
+
     // Events
+    QObject::connect(actionNewResident, SIGNAL(triggered()), this, SLOT(manageResident()));
     QObject::connect(actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
 }
@@ -157,3 +162,11 @@ void Window::changePage(QListWidgetItem *current, QListWidgetItem *previous) {
         current = previous;
     m_pagesWidget->setCurrentIndex(m_contentsWidget->row(current));
 }
+
+void Window::manageResident() {
+    ResidentDialog *resident = new ResidentDialog(this);
+    resident->exec();
+}
+
+
+

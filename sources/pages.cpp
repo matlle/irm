@@ -1,8 +1,8 @@
-#include <QtGui>
 #include "pages.h"
+#include "DBFactory.h"
 
 ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
-
+     QSqlDatabase db = DBFactory::getConnection(this); 
      QSplitter *splitter = new QSplitter(this);
 
      QTreeView *typeResident = new QTreeView;
@@ -23,16 +23,29 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
 
      QTreeView *residentName = new QTreeView;
          QStandardItemModel *nomModel = new QStandardItemModel;
-         QStandardItem *nom1 = new QStandardItem("Matlle");
+
+         QSqlQuery query("SELECT resident_nom FROM resident");
+         if(query.lastError().isValid())
+             QMessageBox::critical(this, "Error", query.lastError().text());
+         else {
+             QSqlRecord results = query.record();
+             if(!results.isEmpty()) {
+                 while(query.next())
+                     nomModel->appendRow(new QStandardItem(query.value(results.indexOf("resident_nom")).toString()));
+             }
+        }
+             
+
+         /*QStandardItem *nom1 = new QStandardItem("Matlle");
          QStandardItem *nom2 = new QStandardItem("Super Boy");
          QStandardItem *nom3 = new QStandardItem("Alice");
-         QStandardItem *nom4 = new QStandardItem("Paul");
+         Q2StandardItem *nom4 = new QStandardItem("Paul");
          QStandardItem *nom5 = new QStandardItem("Eric");
          nomModel->appendRow(nom1);
          nomModel->appendRow(nom2);
          nomModel->appendRow(nom3);
          nomModel->appendRow(nom4);
-         nomModel->appendRow(nom5);
+         nomModel->appendRow(nom5);*/
          nomModel->setHorizontalHeaderLabels(QStringList("Nom Resident"));
 
          residentName->setModel(nomModel);
