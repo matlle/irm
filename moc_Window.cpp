@@ -39,7 +39,7 @@ static const uint qt_meta_data_Window[] = {
 static const char qt_meta_stringdata_Window[] = {
     "Window\0\0current,previous\0"
     "changePage(QListWidgetItem*,QListWidgetItem*)\0"
-    "manageResident()\0"
+    "newResident()\0"
 };
 
 void Window::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -49,7 +49,7 @@ void Window::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         Window *_t = static_cast<Window *>(_o);
         switch (_id) {
         case 0: _t->changePage((*reinterpret_cast< QListWidgetItem*(*)>(_a[1])),(*reinterpret_cast< QListWidgetItem*(*)>(_a[2]))); break;
-        case 1: _t->manageResident(); break;
+        case 1: _t->newResident(); break;
         default: ;
         }
     }

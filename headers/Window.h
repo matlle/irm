@@ -30,7 +30,7 @@ class Window : public QMainWindow {
     
     public slots:
         void changePage(QListWidgetItem *current, QListWidgetItem *previous);
-        void manageResident();
+        void newResident();
     
     protected:
         void createIcons();

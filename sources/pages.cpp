@@ -36,21 +36,12 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
         }
              
 
-         /*QStandardItem *nom1 = new QStandardItem("Matlle");
-         QStandardItem *nom2 = new QStandardItem("Super Boy");
-         QStandardItem *nom3 = new QStandardItem("Alice");
-         Q2StandardItem *nom4 = new QStandardItem("Paul");
-         QStandardItem *nom5 = new QStandardItem("Eric");
-         nomModel->appendRow(nom1);
-         nomModel->appendRow(nom2);
-         nomModel->appendRow(nom3);
-         nomModel->appendRow(nom4);
-         nomModel->appendRow(nom5);*/
          nomModel->setHorizontalHeaderLabels(QStringList("Nom Resident"));
 
          residentName->setModel(nomModel);
          residentName->setIndentation(0);
          residentName->setMinimumWidth(130);
+         residentName->setSortingEnabled(true);
         
 
      QWidget *infosResident = new QWidget(this);
