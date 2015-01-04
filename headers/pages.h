@@ -2,7 +2,6 @@
 #define PAGES_H
 
 #include <QWidget>
-//#include <QStandardItemModel>
 #include <QAbstractItemModel>
 #include <QTreeView>
 
@@ -16,9 +15,8 @@ class ResidentPage : public QWidget {
         void insertNewResident(int);
 
     public slots:
-
+        void showEdit(const QModelIndex&);
     protected:
-        //QStandardItemModel *m_nomModel;
         QTreeView          *m_residentName;
         
     

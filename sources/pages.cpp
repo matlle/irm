@@ -25,8 +25,8 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          typeResident->setModel(typeModel);
          typeResident->setMinimumWidth(130);
 
-     m_residentName = new QTreeView;
-         ex_nomModel = new QStandardItemModel;
+     m_residentName = new QTreeView(this);
+         ex_nomModel = new QStandardItemModel(this);
          ex_proxyModel = new QSortFilterProxyModel(this);
 
          QSqlQuery query("SELECT resident_nom, resident_prenom FROM resident");
@@ -59,7 +59,8 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          m_residentName->setMinimumWidth(130);
          m_residentName->setSortingEnabled(true);
          m_residentName->setAlternatingRowColors(true);
-
+         
+         QObject::connect(m_residentName, SIGNAL(activated(QModelIndex)), this, SLOT(showEdit(QModelIndex)));
 
      QWidget *infosResident = new QWidget(this);
          QLabel *textInfos = new QLabel(this);
@@ -96,6 +97,13 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
      setLayout(mainLayout);
      
  }
+
+void ResidentPage::showEdit(const QModelIndex &pro_index) {
+    QModelIndex model_index = ex_proxyModel->mapToSource(pro_index);
+    QStandardItem *item = ex_nomModel->itemFromIndex(model_index);
+    if(item != 0)
+    QMessageBox::information(this, "Edit resient", item->text());
+}
 
 void ResidentPage::updateResidentList() {
     QSqlQuery query("SELECT resident_nom FROM resident");
