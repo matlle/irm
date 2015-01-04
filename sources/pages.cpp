@@ -1,4 +1,5 @@
 #include "pages.h"
+#include "ResidentDialog.h"
 #include "common.h"
 #include "DBFactory.h"
 
@@ -29,7 +30,7 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          ex_nomModel = new QStandardItemModel(this);
          ex_proxyModel = new QSortFilterProxyModel(this);
 
-         QSqlQuery query("SELECT resident_nom, resident_prenom FROM resident");
+         QSqlQuery query("SELECT resident_id, resident_nom, resident_prenom FROM resident");
          if(query.lastError().isValid())
              QMessageBox::critical(this, "Error", query.lastError().text());
          else {
@@ -39,6 +40,7 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
                      QString rn = query.value(results.indexOf("resident_nom")).toString();
                              rn += " " + query.value(results.indexOf("resident_prenom")).toString();
                      QStandardItem *ni = new QStandardItem(rn);
+                     ni->setAccessibleText(query.value(results.indexOf("resident_id")).toString());
                      ni->setEditable(false);
                      ni->setIcon(QIcon("img/user-icon.png"));
                      ex_nomModel->appendRow(ni);
@@ -101,8 +103,46 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
 void ResidentPage::showEdit(const QModelIndex &pro_index) {
     QModelIndex model_index = ex_proxyModel->mapToSource(pro_index);
     QStandardItem *item = ex_nomModel->itemFromIndex(model_index);
-    if(item != 0)
-    QMessageBox::information(this, "Edit resient", item->text());
+    if(item != 0) {
+        QString rsname = item->text();
+        QStringList list = rsname.split(" ");
+        QString nom = (QString) list.first();
+        QVariantList v;
+        QSqlQuery querySr;
+        querySr.prepare("SELECT * FROM resident WHERE resident_id = :id");
+        querySr.bindValue(":id", item->accessibleText());
+        if(!querySr.exec())
+            QMessageBox::critical(this, "Huston, we've a problem... :)", querySr.lastError().text());
+        else {
+            QSqlRecord resInfos = querySr.record();
+            if(!resInfos.isEmpty()) {
+                while(querySr.next()) {
+                       v << querySr.value(resInfos.indexOf("resident_id")); // 0
+                       v << querySr.value(resInfos.indexOf("resident_nom")); // 1
+                       v << querySr.value(resInfos.indexOf("resident_prenom")); // 2
+                       v << querySr.value(resInfos.indexOf("resident_email")); // 3
+                       v << querySr.value(resInfos.indexOf("resident_phone_number")); // 4
+                       v << querySr.value(resInfos.indexOf("type_resident_id")); // 5
+                       v << querySr.value(resInfos.indexOf("resident_photo_name")); // 6
+                       v << querySr.value(resInfos.indexOf("resident_lieu_naissance")); // 7
+                       v << querySr.value(resInfos.indexOf("resident_genre")); // 8
+                       v << querySr.value(resInfos.indexOf("resident_taille")); // 9
+                       v << querySr.value(resInfos.indexOf("resident_matricule")); // 10
+                       v << querySr.value(resInfos.indexOf("resident_phone_number2")); // 11
+                       v << querySr.value(resInfos.indexOf("resident_phone_number3")); // 12
+                       v << querySr.value(resInfos.indexOf("resident_date_naissance")); // 13
+                }
+            }
+        }
+          
+        
+        ResidentDialog *editResident = new ResidentDialog(v, this);
+        int intret = editResident->exec();
+        if (intret == QDialog::Accepted) {
+            editResident->saveEditedResident();
+        }
+
+    }
 }
 
 void ResidentPage::updateResidentList() {

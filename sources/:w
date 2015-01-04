@@ -288,7 +288,6 @@ ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDi
         groupPhoto->setLayout(photoLayout);
 
         m_nom = new QLineEdit(listInfos[1].toString(), this);
-
         m_prenom = new QLineEdit(listInfos[2].toString(), this);
 
         // recreate a date object :)
@@ -301,33 +300,20 @@ ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDi
         m_dateNaissance = new QDateEdit(nd, this);
                    m_dateNaissance->setCalendarPopup(true);
                    m_dateNaissance->setDisplayFormat(QString("dd/MM/yyyy"));
-
         m_lieuNaissance = new QLineEdit(listInfos[7].toString(), this);
-
         m_genre = new QComboBox(this);
                    m_genre->addItem("Homme");
                    m_genre->addItem("Femme");
-                   if(listInfos[8].toString() == "Homme")
-                       m_genre->setCurrentIndex(0);
-                   else if(listInfos[8].toString() == "Femme")
-                       m_genre->setCurrentIndex(1);
-
-        m_taille = new QSpinBox(this);
-                  m_taille->setRange(1, 300);
-                  m_taille->setValue(listInfos[9].toInt());
-
-        m_matricule = new QLineEdit(listInfos[10].toString(), this);
-
-        m_telephone1 = new QLineEdit(listInfos[4].toString(), this);
+        m_taille = new QSpinBox;
+                  m_taille->setMaximum(300);
+        m_matricule = new QLineEdit(this);
+        m_telephone1 = new QLineEdit(this);
             m_telephone1->setInputMask(QString("99-99-99-99"));
-
-        m_telephone2 = new QLineEdit(listInfos[11].toString(), this); 
+        m_telephone2 = new QLineEdit(this);
             m_telephone2->setInputMask(QString("99-99-99-99"));
-
-        m_telephone3 = new QLineEdit(listInfos[12].toString(), this);
+        m_telephone3 = new QLineEdit(this);
             m_telephone3->setInputMask(QString("99-99-99-99"));
-
-        m_email = new QLineEdit(listInfos[3].toString(), this);
+        m_email = new QLineEdit(this);
 
         QFormLayout *infosForm = new QFormLayout;
         infosForm->addRow("Nom: ", m_nom);
