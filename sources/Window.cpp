@@ -11,6 +11,7 @@
 #include "DBFactory.h"
 #include "pages.h"
 #include "ResidentDialog.h"
+#include "common.h"
 
 QSqlDatabase db;
 Window::Window() {
@@ -75,7 +76,7 @@ void Window::initMainWindow() {
 
     // Toolbar stuff
     QToolBar *toolbar = addToolBar("IrmToolbar");
-    QLineEdit *searchField = new QLineEdit;
+    QLineEdit *searchField = new QLineEdit(this);
               searchField->setPlaceholderText(QString("Rechercher"));
     toolbar->addAction(actionNewResident);
     toolbar->addAction(actionNewTypeResident);
@@ -118,12 +119,15 @@ void Window::initMainWindow() {
     statusBar()->showMessage("Ready");
     showMaximized(); 
 
+    m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     // Events
     QObject::connect(actionNewResident, SIGNAL(triggered()), this, SLOT(newResident()));
+    QObject::connect(searchField, SIGNAL(textEdited(QString)), m_proxyModel, SLOT(setFilterFixedString(QString)));
     QObject::connect(actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
 }
+
 
 
 void Window::createIcons() {
@@ -167,26 +171,7 @@ void Window::newResident() {
     ResidentDialog *resident = new ResidentDialog(this);
     int intAct = resident->exec();
     if (intAct == QDialog::Accepted) {
-        QSqlQuery queryNr;
-            queryNr.prepare("INSERT INTO resident(resident_nom, resident_prenom, resident_date_naissance, resident_email, resident_phone_number, resident_phone_number2, resident_phone_number3, resident_lieu_naissance, resident_genre, resident_taille, resident_matricule)" 
-                            "VALUES (:nom, :prenom, :dateNais, :email, :phone1, :phone2, :phone3, :lieuNais, :genre, :taille, :matricule)");
-
-            
-            queryNr.bindValue(":nom", m_nom->text());
-            queryNr.bindValue(":prenom", m_prenom->text());
-            queryNr.bindValue(":dateNais", m_dateNaissance->date().toString("dd/MM/yyyy"));
-            queryNr.bindValue(":email", m_email->text());
-            queryNr.bindValue(":nom", m_nom->text());
-            queryNr.bindValue(":nom", m_nom->text());
-            queryNr.bindValue(":nom", m_nom->text());
-            queryNr.bindValue(":nom", m_nom->text());
-            queryNr.bindValue(":nom", m_nom->text());
-            queryNr.bindValue(":nom", m_nom->text());
-            queryNr.bindValue(":nom", m_nom->text());
-
-            //if(queryNr.lastError().isValid()) 
-            //    QMessageBox::critical(this, "Huston, we got a error :)", queryNr.lastError().text());
-
+       resident->saveNewResident();
     }
 
 

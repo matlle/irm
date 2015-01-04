@@ -12,11 +12,13 @@
 #define HEADER_RESIDENTDIALOG
 
 #include <QtGui>
+#include <QtSql>
 
 class ResidentDialog : public QDialog { 
 
     public:
       ResidentDialog(QWidget *parent);
+      void saveNewResident();
 
     protected:
       QLineEdit *m_nom;

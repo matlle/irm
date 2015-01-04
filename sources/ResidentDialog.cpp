@@ -1,4 +1,6 @@
 #include "ResidentDialog.h"
+#include "pages.h"
+#include <QStandardItemModel>
 
 ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
     
@@ -252,5 +254,35 @@ ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
     setWindowTitle("Nouveau resident - IRM ");
     setLayout(mainLayout);
     
-    QObject::connect(m_cancelBtn, SIGNAL(clicked()), this, SLOT(accept()));
+    QObject::connect(m_okBtn, SIGNAL(clicked()), this, SLOT(accept()));
+    QObject::connect(m_cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
+}
+
+void ResidentDialog::saveNewResident() {
+      QSqlQuery queryNr;
+      queryNr.prepare("INSERT INTO resident(resident_nom, resident_prenom, resident_date_naissance, resident_email, resident_phone_number, resident_phone_number2, resident_phone_number3, resident_lieu_naissance, resident_genre, resident_taille, resident_matricule)" 
+                            "VALUES (:nom, :prenom, :dateNais, :email, :phone1, :phone2, :phone3, :lieuNais, :genre, :taille, :matricule)");
+            
+            queryNr.bindValue(":nom", m_nom->text());
+            queryNr.bindValue(":prenom", m_prenom->text());
+            queryNr.bindValue(":dateNais", m_dateNaissance->date().toString("dd/MM/yyyy"));
+            queryNr.bindValue(":email", m_email->text());
+            queryNr.bindValue(":phone1", m_telephone1->text());
+            queryNr.bindValue(":phone2", m_telephone2->text());
+            queryNr.bindValue(":phone3", m_telephone3->text());
+            queryNr.bindValue(":lieuNais", m_lieuNaissance->text());
+            queryNr.bindValue(":genre", m_genre->currentText());
+            queryNr.bindValue(":taille", m_taille->value());
+            queryNr.bindValue(":matricule", m_matricule->text());
+
+            if(!queryNr.exec()) 
+                QMessageBox::critical(this, "Huston, we got a error :)", queryNr.lastError().text());
+            else {
+                 QMessageBox::information(this, "Succès!", "Nouveau resident enregistré! " + queryNr.lastInsertId().toString());
+                 ResidentPage residPage;
+
+                 //residPage.insertNewResident(queryNr.lastInsertId().toInt());
+            }
+
+
 }

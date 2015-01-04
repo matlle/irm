@@ -2,11 +2,28 @@
 #define PAGES_H
 
 #include <QWidget>
+#include <QStandardItemModel>
+#include <QAbstractItemModel>
+#include <QTreeView>
+
+
 
 class ResidentPage : public QWidget {
-
+    Q_OBJECT
     public:
         ResidentPage(QWidget *parent = 0);
+        void updateResidentList();
+        void insertNewResident(int);
+
+    public slots:
+
+    protected:
+        QStandardItemModel *m_nomModel;
+        QTreeView          *m_residentName;
+        
+    
+    
+        
 };
 
 class QueryPage: public QWidget {
