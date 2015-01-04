@@ -591,3 +591,65 @@ void ResidentDialog::saveNewResident() {
 
 
 }
+
+
+
+void ResidentDialog::saveEditedResident(int rid) {
+      QSqlQuery queryNr;
+      queryNr.prepare("UPDATE resident \
+                       SET resident_nom = :nom, \
+                           resident_prenom = :prenom, \
+                           resident_date_naissance = :dateNais, \
+                           resident_email = :email, \
+                           resident_phone_number = :phone1, \ 
+                           resident_phone_number2 = :phone2, \
+                           resident_phone_number3 = :phone3, \
+                           resident_lieu_naissance = :lieuNais, \
+                           resident_genre = :genre, \
+                           resident_taille = :taille, \
+                           resident_matricule = :matricule \
+                       WHERE resident_id = :rid");
+            
+            queryNr.bindValue(":rid", rid);
+            queryNr.bindValue(":nom", m_nom->text());
+            queryNr.bindValue(":prenom", m_prenom->text());
+            queryNr.bindValue(":dateNais", m_dateNaissance->date().toString("dd/MM/yyyy"));
+            queryNr.bindValue(":email", m_email->text());
+            queryNr.bindValue(":phone1", m_telephone1->text());
+            queryNr.bindValue(":phone2", m_telephone2->text());
+            queryNr.bindValue(":phone3", m_telephone3->text());
+            queryNr.bindValue(":lieuNais", m_lieuNaissance->text());
+            queryNr.bindValue(":genre", m_genre->currentText());
+            queryNr.bindValue(":taille", m_taille->value());
+            queryNr.bindValue(":matricule", m_matricule->text());
+
+            if(!queryNr.exec()) 
+                QMessageBox::critical(this, "Huston, we got a error :)", queryNr.lastError().text());
+            else {
+                
+                int lid = queryNr.lastInsertId().toInt();
+                
+                QSqlQuery queryNi;
+                queryNi.prepare("SELECT resident_nom, resident_prenom FROM resident WHERE resident_id = :id");
+                queryNi.bindValue(":id", lid);
+                if(!queryNi.exec())
+                    QMessageBox::critical(this, "Huston, we got a error :)", queryNi.lastError().text());
+                else {
+                    QSqlRecord result = queryNi.record();
+                    if(!result.isEmpty()) {
+                        while(queryNi.next()) {
+                            QString sni = queryNi.value(result.indexOf("resident_nom")).toString();
+                            sni += " " + queryNi.value(result.indexOf("resident_prenom")).toString();
+                            QStandardItem *nii = new QStandardItem(sni);
+                            nii->setEditable(false);
+                            nii->setIcon(QIcon("img/user-icon.png"));
+                            ex_nomModel->appendRow(nii);
+                        }
+                    }
+                }
+
+            }
+
+
+}
+

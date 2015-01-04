@@ -20,7 +20,7 @@ class ResidentDialog : public QDialog {
       ResidentDialog(QWidget *parent);
       ResidentDialog(QVariantList list, QWidget *parent);
       void saveNewResident();
-      void saveEditedResident();
+      void saveEditedResident(int);
 
     protected:
       QLineEdit *m_nom;

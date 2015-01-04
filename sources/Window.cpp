@@ -77,7 +77,8 @@ void Window::initMainWindow() {
     // Toolbar stuff
     QToolBar *toolbar = addToolBar("IrmToolbar");
     QLineEdit *searchField = new QLineEdit(this);
-              searchField->setPlaceholderText(QString("Rechercher"));
+              QString ss = "Rechercher";
+              searchField->setPlaceholderText(ss);
     toolbar->addAction(actionNewResident);
     toolbar->addAction(actionNewTypeResident);
     toolbar->addAction(actionNewBatiment);

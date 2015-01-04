@@ -103,6 +103,7 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
 void ResidentPage::showEdit(const QModelIndex &pro_index) {
     QModelIndex model_index = ex_proxyModel->mapToSource(pro_index);
     QStandardItem *item = ex_nomModel->itemFromIndex(model_index);
+    int rid = item->accessibleText().toInt();
     if(item != 0) {
         QString rsname = item->text();
         QStringList list = rsname.split(" ");
@@ -110,7 +111,7 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
         QVariantList v;
         QSqlQuery querySr;
         querySr.prepare("SELECT * FROM resident WHERE resident_id = :id");
-        querySr.bindValue(":id", item->accessibleText());
+        querySr.bindValue(":id", rid);
         if(!querySr.exec())
             QMessageBox::critical(this, "Huston, we've a problem... :)", querySr.lastError().text());
         else {
@@ -139,7 +140,7 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
         ResidentDialog *editResident = new ResidentDialog(v, this);
         int intret = editResident->exec();
         if (intret == QDialog::Accepted) {
-            editResident->saveEditedResident();
+            editResident->saveEditedResident(rid);
         }
 
     }
