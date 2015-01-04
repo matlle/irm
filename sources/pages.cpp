@@ -2,7 +2,8 @@
 #include "common.h"
 #include "DBFactory.h"
 
-QSortFilterProxyModel *m_proxyModel;
+QSortFilterProxyModel *ex_proxyModel;
+QStandardItemModel *ex_nomModel;
 
 ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
      QSqlDatabase db = DBFactory::getConnection(this); 
@@ -25,31 +26,35 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          typeResident->setMinimumWidth(130);
 
      m_residentName = new QTreeView;
-         m_nomModel = new QStandardItemModel;
-         m_proxyModel = new QSortFilterProxyModel(this);
+         ex_nomModel = new QStandardItemModel;
+         ex_proxyModel = new QSortFilterProxyModel(this);
 
-         QSqlQuery query("SELECT resident_nom FROM resident");
+         QSqlQuery query("SELECT resident_nom, resident_prenom FROM resident");
          if(query.lastError().isValid())
              QMessageBox::critical(this, "Error", query.lastError().text());
          else {
              QSqlRecord results = query.record();
              if(!results.isEmpty()) {
                  while(query.next()) {
-                     QStandardItem *ni = new QStandardItem(query.value(results.indexOf("resident_nom")).toString());
+                     QString rn = query.value(results.indexOf("resident_nom")).toString();
+                             rn += " " + query.value(results.indexOf("resident_prenom")).toString();
+                     QStandardItem *ni = new QStandardItem(rn);
                      ni->setEditable(false);
                      ni->setIcon(QIcon("img/user-icon.png"));
-                     m_nomModel->appendRow(ni);
+                     ex_nomModel->appendRow(ni);
                 }
              }
         }
 
         // updateResidentList(); 
 
-         m_nomModel->setHorizontalHeaderLabels(QStringList("Nom Resident"));
+         ex_nomModel->setHorizontalHeaderLabels(QStringList("Nom Resident"));
 
-         m_proxyModel->setSourceModel(m_nomModel);
+         ex_proxyModel->setSourceModel(ex_nomModel);
+         ex_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+         ex_proxyModel->setDynamicSortFilter(true);
 
-         m_residentName->setModel(m_proxyModel);
+         m_residentName->setModel(ex_proxyModel);
          m_residentName->setIndentation(0);
          m_residentName->setMinimumWidth(130);
          m_residentName->setSortingEnabled(true);
@@ -79,6 +84,7 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
              infosLayout->addWidget(textInfos);
              infosLayout->addStretch(58);
          infosResident->setStyleSheet("background-color: white;");
+         infosResident->resize(1100, infosResident->height());
          infosResident->setLayout(infosLayout);
 
      splitter->addWidget(typeResident);
@@ -102,7 +108,7 @@ void ResidentPage::updateResidentList() {
                     QStandardItem  *ni =  new QStandardItem(query.value(results.indexOf("resident_nom")).toString());
                     ni->setEditable(false);
                     ni->setIcon(QIcon("img/user-icon.png"));
-                     m_nomModel->appendRow(ni);
+                     ex_nomModel->appendRow(ni);
                  }
              }
         }

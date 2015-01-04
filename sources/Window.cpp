@@ -119,11 +119,10 @@ void Window::initMainWindow() {
     statusBar()->showMessage("Ready");
     showMaximized(); 
 
-    m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     // Events
     QObject::connect(actionNewResident, SIGNAL(triggered()), this, SLOT(newResident()));
-    QObject::connect(searchField, SIGNAL(textEdited(QString)), m_proxyModel, SLOT(setFilterFixedString(QString)));
+    QObject::connect(searchField, SIGNAL(textEdited(QString)), ex_proxyModel, SLOT(setFilterFixedString(QString)));
     QObject::connect(actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
 }

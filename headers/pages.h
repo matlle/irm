@@ -2,7 +2,7 @@
 #define PAGES_H
 
 #include <QWidget>
-#include <QStandardItemModel>
+//#include <QStandardItemModel>
 #include <QAbstractItemModel>
 #include <QTreeView>
 
@@ -18,7 +18,7 @@ class ResidentPage : public QWidget {
     public slots:
 
     protected:
-        QStandardItemModel *m_nomModel;
+        //QStandardItemModel *m_nomModel;
         QTreeView          *m_residentName;
         
     

@@ -1,6 +1,7 @@
 #include "ResidentDialog.h"
 #include "pages.h"
-#include <QStandardItemModel>
+#include "common.h"
+
 
 ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
     
@@ -278,10 +279,29 @@ void ResidentDialog::saveNewResident() {
             if(!queryNr.exec()) 
                 QMessageBox::critical(this, "Huston, we got a error :)", queryNr.lastError().text());
             else {
-                 QMessageBox::information(this, "Succès!", "Nouveau resident enregistré! " + queryNr.lastInsertId().toString());
-                 ResidentPage residPage;
+                
+                int lid = queryNr.lastInsertId().toInt();
+                //QMessageBox::information(this, "Succès!", "Nouveau resident enregistré! " + queryNr.lastInsertId().toString());                
+                
+                QSqlQuery queryNi;
+                queryNi.prepare("SELECT resident_nom, resident_prenom FROM resident WHERE resident_id = :id");
+                queryNi.bindValue(":id", lid);
+                if(!queryNi.exec())
+                    QMessageBox::critical(this, "Huston, we got a error :)", queryNi.lastError().text());
+                else {
+                    QSqlRecord result = queryNi.record();
+                    if(!result.isEmpty()) {
+                        while(queryNi.next()) {
+                            QString sni = queryNi.value(result.indexOf("resident_nom")).toString();
+                            sni += " " + queryNi.value(result.indexOf("resident_prenom")).toString();
+                            QStandardItem *nii = new QStandardItem(sni);
+                            nii->setEditable(false);
+                            nii->setIcon(QIcon("img/user-icon.png"));
+                            ex_nomModel->appendRow(nii);
+                        }
+                    }
+                }
 
-                 //residPage.insertNewResident(queryNr.lastInsertId().toInt());
             }
 
 
