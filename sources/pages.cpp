@@ -73,7 +73,7 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
                  picResident->setPixmap(QPixmap("img/michael.png"));
                  picResident->setAlignment(Qt::AlignLeft | Qt::AlignTop);
                  picResident->setMaximumHeight(250);
-                 picResident->setMaximumWidth(221);
+                 //picResident->setMaximumWidth(221);
          QLabel *nameResident = new QLabel(this);
                  nameResident->setText(QString("Michael Scott"));
                  nameResident->setFont(QFont("DejaVu Sans", 22, QFont::Bold));

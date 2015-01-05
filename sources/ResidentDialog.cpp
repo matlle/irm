@@ -1,6 +1,7 @@
 #include "ResidentDialog.h"
 #include "pages.h"
 #include "common.h"
+#include "photopreview.h"
 
 
 ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
@@ -19,12 +20,13 @@ ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
     m_cancelBtn->setIcon(QIcon("img/button_cancel.png"));
     QTabWidget *onglets = new QTabWidget(this);
 
+    // tab1
     QWidget *page1 = new QWidget;
-        QPushButton *btnPhoto = new QPushButton; 
-                     btnPhoto->setIcon(QIcon("img/user-icon.png"));
-                     btnPhoto->setIconSize(QSize(200, 200));
+        m_btnPhoto = new QPushButton; 
+                     m_btnPhoto->setIcon(QIcon("img/user-icon.png"));
+                     m_btnPhoto->setIconSize(QSize(200, 200));
         QVBoxLayout *photoLayout = new QVBoxLayout;
-                     photoLayout->addWidget(btnPhoto);
+                     photoLayout->addWidget(m_btnPhoto);
         QGroupBox *groupPhoto = new QGroupBox("Photo");
         groupPhoto->setLayout(photoLayout);
 
@@ -71,6 +73,7 @@ ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
         page1->setLayout(mainLayoutPage1);
 
 
+    // tab2
     QWidget *page2 = new QWidget;
        QLabel *labelSelectBat = new QLabel(this);
                labelSelectBat->setText(QString("Batiment: "));
@@ -135,7 +138,7 @@ ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
 
        page2->setLayout(mainLayoutPage2);
 
-
+    // tab3
     QWidget *page3 = new QWidget;
         QGroupBox *groupCantine = new QGroupBox("Mange à la Cantine?");
                    groupCantine->setCheckable(true);
@@ -169,6 +172,7 @@ ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
 
         page3->setLayout(mainLayoutPage3);
 
+    // tab4
     QWidget *page4 = new QWidget;
          QGroupBox *groupMttc = new QGroupBox("Paiement");
          QLineEdit *mttc = new QLineEdit(this);
@@ -255,6 +259,7 @@ ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
     setWindowTitle("Nouveau resident - IRM ");
     setLayout(mainLayout);
     
+    QObject::connect(m_btnPhoto, SIGNAL(clicked()), this, SLOT(selectPhoto()));
     QObject::connect(m_okBtn, SIGNAL(clicked()), this, SLOT(accept()));
     QObject::connect(m_cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
 }
@@ -279,11 +284,11 @@ ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDi
     QTabWidget *onglets = new QTabWidget(this);
 
     QWidget *page1 = new QWidget;
-        QPushButton *btnPhoto = new QPushButton; 
-                     btnPhoto->setIcon(QIcon("img/user-icon.png"));
-                     btnPhoto->setIconSize(QSize(200, 200));
+        m_btnPhoto = new QPushButton; 
+                     m_btnPhoto->setIcon(QIcon("img/user-icon.png"));
+                     m_btnPhoto->setIconSize(QSize(200, 200));
         QVBoxLayout *photoLayout = new QVBoxLayout;
-                     photoLayout->addWidget(btnPhoto);
+                     photoLayout->addWidget(m_btnPhoto);
         QGroupBox *groupPhoto = new QGroupBox("Photo");
         groupPhoto->setLayout(photoLayout);
 
@@ -536,6 +541,7 @@ ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDi
     setWindowTitle("Modifier resident - IRM ");
     setLayout(mainLayout);
     
+    QObject::connect(m_btnPhoto, SIGNAL(clicked()), this, SLOT(selectPhoto()));
     QObject::connect(m_okBtn, SIGNAL(clicked()), this, SLOT(accept()));
     QObject::connect(m_cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
 }
@@ -580,6 +586,8 @@ void ResidentDialog::saveNewResident() {
                             QString sni = queryNi.value(result.indexOf("resident_nom")).toString();
                             sni += " " + queryNi.value(result.indexOf("resident_prenom")).toString();
                             QStandardItem *nii = new QStandardItem(sni);
+                            QString ts = QString::number(lid);
+                            nii->setAccessibleText(ts);
                             nii->setEditable(false);
                             nii->setIcon(QIcon("img/user-icon.png"));
                             ex_nomModel->appendRow(nii);
@@ -653,3 +661,36 @@ void ResidentDialog::saveEditedResident(int rid) {
 
 }
 
+
+void ResidentDialog::selectPhoto() {
+    QString photoFileName = QFileDialog::getOpenFileName(this, "Sélectioner une photo", "/home", "Images (*.png *.jpg *jpeg)");
+
+    if(!photoFileName.isNull()) {
+        QImage image(photoFileName);
+        if(image.isNull()) {
+            QMessageBox::warning(this, "Sélectioner une photo", "Impossible d'ouvrir le fichier ' " + photoFileName + " '");
+            return;
+        }
+        
+        QImage imageScaled = image.scaledToHeight(250);
+
+        PhotoPreview *pp = new PhotoPreview(QPixmap::fromImage(imageScaled), this); 
+        //int ret = pp->exec();
+        QString nuid = QUuid::createUuid().toString();
+        nuid.replace(QString("{"), QString(""));
+        nuid.replace(QString("}"), QString(""));
+        nuid.replace(QString("-"), QString("_"));
+
+        QMessageBox::information(this, "Unique Id", nuid);
+        /*if(ret == Accepted) {
+            QImageWriter writer("img/uploads/userphoto/one.png", "png");
+            writer.setQuality(100);
+
+            if(!writer.write(image)) {
+                QMessageBox::critical(this, "Sélectioner une photo", writer.errorString());
+            }
+        }*/
+
+    }
+
+}

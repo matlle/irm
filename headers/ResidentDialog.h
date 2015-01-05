@@ -15,13 +15,14 @@
 #include <QtSql>
 
 class ResidentDialog : public QDialog { 
-
+    Q_OBJECT
     public:
       ResidentDialog(QWidget *parent);
       ResidentDialog(QVariantList list, QWidget *parent);
       void saveNewResident();
       void saveEditedResident(int);
-
+    public slots:
+        void selectPhoto();
     protected:
       QLineEdit *m_nom;
       QLineEdit *m_prenom;
@@ -37,6 +38,7 @@ class ResidentDialog : public QDialog {
 
       QComboBox *m_typeResident;
       QLabel *m_chambre;
+      QPushButton *m_btnPhoto;
       QPushButton *m_okBtn;
       QPushButton *m_cancelBtn;
  

@@ -11,6 +11,8 @@ INCLUDEPATH += . headers
 QT += sql
 
 # Input
-HEADERS += headers/Window.h pages.h DBFactory.h ResidentDialog.h 
-SOURCES += sources/main.cpp Window.cpp pages.cpp DBFactory.cpp ResidentDialog.cpp
+HEADERS += headers/Window.h pages.h DBFactory.h ResidentDialog.h common.h \
+                   photopreview.h
+SOURCES += sources/main.cpp Window.cpp pages.cpp DBFactory.cpp ResidentDialog.cpp \
+                   photopreview.cpp
 RESSOURCES += irm.qrc
