@@ -132,6 +132,7 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
                        v << querySr.value(resInfos.indexOf("resident_phone_number2")); // 11
                        v << querySr.value(resInfos.indexOf("resident_phone_number3")); // 12
                        v << querySr.value(resInfos.indexOf("resident_date_naissance")); // 13
+                       v << querySr.value(resInfos.indexOf("resident_photo_name")); // 14
                 }
             }
         }
@@ -141,6 +142,13 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
         int intret = editResident->exec();
         if (intret == QDialog::Accepted) {
             editResident->saveEditedResident(rid);
+        }else if(intret == QDialog::Rejected) {
+            if(!ex_photoName->isNull() && !ex_photoName->isEmpty()) {
+                QFile photoFile(*ex_photoName, this);
+                if(!photoFile.remove())
+                    QMessageBox::warning(this, "Huston, we got a problem...", "Erreur de suppression du fichier temporaire\n " + *ex_photoName);
+                *ex_photoName = "";
+            }
         }
 
     }

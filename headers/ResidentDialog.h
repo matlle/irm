@@ -21,6 +21,8 @@ class ResidentDialog : public QDialog {
       ResidentDialog(QVariantList list, QWidget *parent);
       void saveNewResident();
       void saveEditedResident(int);
+      void remove_old_photo(int);
+
     public slots:
         void selectPhoto();
     protected:
@@ -39,6 +41,7 @@ class ResidentDialog : public QDialog {
       QComboBox *m_typeResident;
       QLabel *m_chambre;
       QPushButton *m_btnPhoto;
+      QString *m_photoname;
       QPushButton *m_okBtn;
       QPushButton *m_cancelBtn;
  

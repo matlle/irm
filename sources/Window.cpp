@@ -172,6 +172,13 @@ void Window::newResident() {
     int intAct = resident->exec();
     if (intAct == QDialog::Accepted) {
        resident->saveNewResident();
+    } else if(intAct == QDialog::Rejected) {
+        if(!ex_photoName->isNull() && !ex_photoName->isEmpty()) {
+            QFile photoFile(*ex_photoName, this);
+            if(!photoFile.remove())
+                QMessageBox::warning(this, "Huston, we got a problem...", "Erreur lors de suppression du fichier temporaire\n " + *ex_photoName);
+             *ex_photoName = "";
+        }
     }
 
 

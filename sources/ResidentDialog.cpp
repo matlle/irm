@@ -3,6 +3,7 @@
 #include "common.h"
 #include "photopreview.h"
 
+QString *ex_photoName = new QString();
 
 ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
     
@@ -39,7 +40,8 @@ ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
         m_genre = new QComboBox(this);
                    m_genre->addItem("Homme");
                    m_genre->addItem("Femme");
-        m_taille = new QSpinBox;
+        m_taille = new QSpinBox(this);
+                  m_taille->setRange(1, 300);
                   m_taille->setMaximum(300);
         m_matricule = new QLineEdit(this);
         m_telephone1 = new QLineEdit(this);
@@ -284,8 +286,14 @@ ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDi
     QTabWidget *onglets = new QTabWidget(this);
 
     QWidget *page1 = new QWidget;
+        m_photoname = new QString();
         m_btnPhoto = new QPushButton; 
-                     m_btnPhoto->setIcon(QIcon("img/user-icon.png"));
+                     if(!listInfos[14].isNull() && !listInfos[14].toString().isEmpty()) {
+                         m_btnPhoto->setIcon(QIcon(listInfos[14].toString()));
+                         *m_photoname =  QString(listInfos[14].toString());
+                     } else
+                         m_btnPhoto->setIcon(QIcon("img/user-icon.png"));
+
                      m_btnPhoto->setIconSize(QSize(200, 200));
         QVBoxLayout *photoLayout = new QVBoxLayout;
                      photoLayout->addWidget(m_btnPhoto);
@@ -552,9 +560,12 @@ ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDi
 
 
 void ResidentDialog::saveNewResident() {
+
+      if(!m_nom->text().isEmpty()) {
+
       QSqlQuery queryNr;
-      queryNr.prepare("INSERT INTO resident(resident_nom, resident_prenom, resident_date_naissance, resident_email, resident_phone_number, resident_phone_number2, resident_phone_number3, resident_lieu_naissance, resident_genre, resident_taille, resident_matricule)" 
-                            "VALUES (:nom, :prenom, :dateNais, :email, :phone1, :phone2, :phone3, :lieuNais, :genre, :taille, :matricule)");
+      queryNr.prepare("INSERT INTO resident(resident_nom, resident_prenom, resident_date_naissance, resident_email, resident_phone_number, resident_phone_number2, resident_phone_number3, resident_lieu_naissance, resident_genre, resident_taille, resident_matricule, resident_photo_name)" 
+                            "VALUES (:nom, :prenom, :dateNais, :email, :phone1, :phone2, :phone3, :lieuNais, :genre, :taille, :matricule, :photo)");
             
             queryNr.bindValue(":nom", m_nom->text());
             queryNr.bindValue(":prenom", m_prenom->text());
@@ -567,6 +578,7 @@ void ResidentDialog::saveNewResident() {
             queryNr.bindValue(":genre", m_genre->currentText());
             queryNr.bindValue(":taille", m_taille->value());
             queryNr.bindValue(":matricule", m_matricule->text());
+            queryNr.bindValue(":photo", *ex_photoName);
 
             if(!queryNr.exec()) 
                 QMessageBox::critical(this, "Huston, we got a error :)", queryNr.lastError().text());
@@ -594,15 +606,50 @@ void ResidentDialog::saveNewResident() {
                         }
                     }
                 }
+             *ex_photoName = ""; 
+             QMessageBox::information(this, "Succès", "Resident enregistré!");
 
             }
 
+  } else {
+      QMessageBox::critical(this, "Erreur - Le ouveau resident n'a pu être enregistré", "Vous devez saisir au moins le nom du resident");
+  }
 
 }
 
 
 
+
+
+void ResidentDialog::remove_old_photo(int reid) {
+
+              QSqlQuery queryPhoto;
+              queryPhoto.prepare("SELECT resident_photo_name FROM resident WHERE resident_id = :tid");
+              queryPhoto.bindValue(":tid", reid);
+              if(!queryPhoto.exec())
+                  QMessageBox::critical(this, "Huston, we got a problem...", "Impossible d'obetenir l'anciene photo du resident");
+              QSqlRecord resphoto = queryPhoto.record();
+              if(!resphoto.isEmpty()) {
+                  while(queryPhoto.next()) {
+                      QString picname = queryPhoto.value(resphoto.indexOf("resident_photo_name")).toString();
+                      if(!picname.isNull() && !picname.isEmpty()) {
+                          QFile picFile(picname, this);
+                          if(!picFile.remove())
+                              QMessageBox::warning(this, "Huston, we got a problem...", "Erreur lors de la suppression de l'anciene photo du resident\n" + picname);
+                      }
+                 }
+              }
+
+}
+
+
+
+
 void ResidentDialog::saveEditedResident(int rid) {
+
+      if(!m_nom->text().isEmpty()) {
+
+          
       QSqlQuery queryNr;
       queryNr.prepare("UPDATE resident \
                        SET resident_nom = :nom, \
@@ -615,7 +662,8 @@ void ResidentDialog::saveEditedResident(int rid) {
                            resident_lieu_naissance = :lieuNais, \
                            resident_genre = :genre, \
                            resident_taille = :taille, \
-                           resident_matricule = :matricule \
+                           resident_matricule = :matricule, \
+                           resident_photo_name = :photo \
                        WHERE resident_id = :rid");
             
             queryNr.bindValue(":rid", rid);
@@ -631,10 +679,28 @@ void ResidentDialog::saveEditedResident(int rid) {
             queryNr.bindValue(":taille", m_taille->value());
             queryNr.bindValue(":matricule", m_matricule->text());
 
+            if(!ex_photoName->isNull() && !ex_photoName->isEmpty()) {
+                queryNr.bindValue(":photo", *ex_photoName);
+                remove_old_photo(rid);
+            }
+            else if(!m_photoname->isNull() && !m_photoname->isEmpty())
+                queryNr.bindValue(":photo", *m_photoname);
+
+
             if(!queryNr.exec()) 
                 QMessageBox::critical(this, "Huston, we got a error :)", queryNr.lastError().text());
             else {
                 
+                 /*if(!m_photoname->isNull() && !m_photoname->isEmpty()) {
+                     QImage keepImage(*m_photoname);
+                     QImageWriter writerKeep(*m_photoname, "png");
+
+                     if(!writerKeep.write(keepImage)) {
+                         QMessageBox::critical(this, "Sélectioner une photo", writerKeep.errorString());
+                     }
+
+                  }*/
+
                 int lid = queryNr.lastInsertId().toInt();
                 
                 QSqlQuery queryNi;
@@ -655,10 +721,15 @@ void ResidentDialog::saveEditedResident(int rid) {
                         }
                     }
                 }
+             *ex_photoName = ""; 
 
             }
 
-
+   
+  } else {
+      QMessageBox::critical(this, "Erreur - Le resident n'a pu être modifié", "Vous devez saisir au moins le nom du resident");
+  }
+ 
 }
 
 
@@ -675,21 +746,28 @@ void ResidentDialog::selectPhoto() {
         QImage imageScaled = image.scaledToHeight(250);
 
         PhotoPreview *pp = new PhotoPreview(QPixmap::fromImage(imageScaled), this); 
-        //int ret = pp->exec();
+        int ret = pp->exec();
+
         QString nuid = QUuid::createUuid().toString();
         nuid.replace(QString("{"), QString(""));
         nuid.replace(QString("}"), QString(""));
         nuid.replace(QString("-"), QString("_"));
-
-        QMessageBox::information(this, "Unique Id", nuid);
-        /*if(ret == Accepted) {
-            QImageWriter writer("img/uploads/userphoto/one.png", "png");
+        int randid = qrand();
+        nuid += "_" + QString::number(randid);
+        
+        QString nicon = "img/uploads/userphoto/" + nuid + ".png";
+        
+        if(ret == Accepted) {
+            QImageWriter writer(nicon, "png");
             writer.setQuality(100);
 
-            if(!writer.write(image)) {
+            if(!writer.write(imageScaled)) {
                 QMessageBox::critical(this, "Sélectioner une photo", writer.errorString());
             }
-        }*/
+
+            m_btnPhoto->setIcon(QIcon(nicon));
+            *ex_photoName = nicon;
+        }
 
     }
 
