@@ -22,7 +22,7 @@ static const uint qt_meta_data_ResidentPage[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       1,   14, // methods
+       3,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -31,12 +31,16 @@ static const uint qt_meta_data_ResidentPage[] = {
 
  // slots: signature, parameters, type, tag, flags
       14,   13,   13,   13, 0x0a,
+      42,   36,   13,   13, 0x0a,
+      79,   13,   13,   13, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_ResidentPage[] = {
     "ResidentPage\0\0showEdit(QModelIndex)\0"
+    "event\0contextMenuEvent(QContextMenuEvent*)\0"
+    "showResidentInfos(QModelIndex)\0"
 };
 
 void ResidentPage::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -46,6 +50,8 @@ void ResidentPage::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
         ResidentPage *_t = static_cast<ResidentPage *>(_o);
         switch (_id) {
         case 0: _t->showEdit((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
+        case 1: _t->contextMenuEvent((*reinterpret_cast< QContextMenuEvent*(*)>(_a[1]))); break;
+        case 2: _t->showResidentInfos((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -83,9 +89,9 @@ int ResidentPage::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 3;
     }
     return _id;
 }

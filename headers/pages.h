@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QAbstractItemModel>
 #include <QTreeView>
+#include <QLabel>
 
 
 
@@ -16,9 +17,14 @@ class ResidentPage : public QWidget {
 
     public slots:
         void showEdit(const QModelIndex&);
+        void contextMenuEvent(QContextMenuEvent *event);
+        void showResidentInfos(const QModelIndex&);
+
     protected:
-        QTreeView          *m_residentName;
-        
+        QTreeView  *m_residentName;
+        QLabel     *m_picResident;
+        QLabel     *m_nameResident;         
+        QLabel     *m_textInfos;
     
     
         

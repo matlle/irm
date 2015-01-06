@@ -13,6 +13,12 @@
 #include "ResidentDialog.h"
 #include "common.h"
 
+QAction *actionNewResident;
+QAction *actionNewTypeResident;
+QAction *actionNewChambre;
+QAction *actionNewBatiment;
+
+
 QSqlDatabase db;
 Window::Window() {
     initMainWindow();
@@ -31,11 +37,11 @@ void Window::initMainWindow() {
     // Menu stuff
     QMenu *menuFile = menuBar()->addMenu("&Fichier");
         QMenu *newElement = menuFile->addMenu("&Nouveau");
-            QAction *actionNewResident = newElement->addAction("Nouveau resident");
-            QAction *actionNewTypeResident = newElement->addAction("Nouveau type resident");
+               actionNewResident = newElement->addAction("Nouveau resident");
+               actionNewTypeResident = newElement->addAction("Nouveau type resident");
             newElement->addSeparator();
-            QAction *actionNewBatiment = newElement->addAction("Nouveau batiment");
-            QAction *actionNewChambre = newElement->addAction("Nouvelle chambre");
+               actionNewBatiment = newElement->addAction("Nouveau batiment");
+               actionNewChambre = newElement->addAction("Nouvelle chambre");
         QMenu *exporter = menuFile->addMenu("&Exporter");
             QAction *actionDocx = exporter->addAction("Exporter comme DOCX");
             QAction *actionPdf = exporter->addAction("Exporter comme PDF");

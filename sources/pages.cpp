@@ -1,4 +1,5 @@
 #include "pages.h"
+#include "Window.h"
 #include "ResidentDialog.h"
 #include "common.h"
 #include "DBFactory.h"
@@ -30,19 +31,23 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          ex_nomModel = new QStandardItemModel(this);
          ex_proxyModel = new QSortFilterProxyModel(this);
 
-         QSqlQuery query("SELECT resident_id, resident_nom, resident_prenom FROM resident");
+         QSqlQuery query("SELECT resident_id, resident_nom, resident_prenom, resident_photo_name FROM resident");
          if(query.lastError().isValid())
              QMessageBox::critical(this, "Error", query.lastError().text());
          else {
              QSqlRecord results = query.record();
              if(!results.isEmpty()) {
                  while(query.next()) {
+                     QString rphoto = query.value(results.indexOf("resident_photo_name")).toString(); 
                      QString rn = query.value(results.indexOf("resident_nom")).toString();
                              rn += " " + query.value(results.indexOf("resident_prenom")).toString();
                      QStandardItem *ni = new QStandardItem(rn);
                      ni->setAccessibleText(query.value(results.indexOf("resident_id")).toString());
                      ni->setEditable(false);
-                     ni->setIcon(QIcon("img/user-icon.png"));
+                     if(!rphoto.isNull() && !rphoto.isEmpty())
+                         ni->setIcon(QIcon(rphoto));
+                     else
+                         ni->setIcon(QIcon("img/user-icon.png"));
                      ex_nomModel->appendRow(ni);
                 }
              }
@@ -63,28 +68,27 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          m_residentName->setAlternatingRowColors(true);
          
          QObject::connect(m_residentName, SIGNAL(activated(QModelIndex)), this, SLOT(showEdit(QModelIndex)));
+         QObject::connect(m_residentName, SIGNAL(clicked(QModelIndex)), this, SLOT(showResidentInfos(QModelIndex)));
 
      QWidget *infosResident = new QWidget(this);
-         QLabel *textInfos = new QLabel(this);
-                 textInfos->setText(QString("Informations: de la diaspora\nPays: Unknown\nSituation: Critical..."));
-                 textInfos->setAlignment(Qt::AlignLeft);
-                 textInfos->setIndent(20);
-         QLabel *picResident = new QLabel(this);
-                 picResident->setPixmap(QPixmap("img/michael.png"));
-                 picResident->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-                 picResident->setMaximumHeight(250);
+         m_textInfos = new QLabel(this);
+                 //textInfos->setText(QString("Informations: de la diaspora\nPays: Unknown\nSituation: Critical..."));
+                 m_textInfos->setAlignment(Qt::AlignLeft);
+                 m_textInfos->setIndent(20);
+         m_picResident = new QLabel(this);
+                 m_picResident->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+                 m_picResident->setMaximumHeight(250);
                  //picResident->setMaximumWidth(221);
-         QLabel *nameResident = new QLabel(this);
-                 nameResident->setText(QString("Michael Scott"));
-                 nameResident->setFont(QFont("DejaVu Sans", 22, QFont::Bold));
-                 nameResident->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+         m_nameResident = new QLabel(this);
+                 m_nameResident->setFont(QFont("DejaVu Sans", 18, QFont::Bold));
+                 m_nameResident->setAlignment(Qt::AlignLeft | Qt::AlignTop);
          QVBoxLayout *picnameLayout = new QVBoxLayout;
-                      picnameLayout->addWidget(picResident);
-                      picnameLayout->addWidget(nameResident);
+                      picnameLayout->addWidget(m_picResident);
+                      picnameLayout->addWidget(m_nameResident);
          QHBoxLayout *infosLayout = new QHBoxLayout;
              infosLayout->addSpacing(30);
              infosLayout->addLayout(picnameLayout);
-             infosLayout->addWidget(textInfos);
+             infosLayout->addWidget(m_textInfos);
              infosLayout->addStretch(58);
          infosResident->setStyleSheet("background-color: white;");
          infosResident->resize(1100, infosResident->height());
@@ -154,7 +158,8 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
     }
 }
 
-void ResidentPage::updateResidentList() {
+
+/*void ResidentPage::updateResidentList() {
     QSqlQuery query("SELECT resident_nom FROM resident");
          if(query.lastError().isValid())
              QMessageBox::critical(this, "Error", query.lastError().text());
@@ -171,7 +176,147 @@ void ResidentPage::updateResidentList() {
         }
 
 
+}*/
+
+
+
+
+void ResidentPage::contextMenuEvent(QContextMenuEvent *event) {
+
+    QMenu ResMenu(this);
+        QAction *actionEditResi = new QAction("Modifier resident", this);
+            actionEditResi->setStatusTip("Apporter des modification au resident selectioné");
+            actionEditResi->setIcon(QIcon("img/edit.png"));
+        QAction *actionDelResi = new QAction("Supprimer resident", this);
+            actionDelResi->setIcon(QIcon("img/button_cancel.png"));
+            actionDelResi->setStatusTip("Supprimer definitivement le resident selectioné du logiciel");
+
+    ResMenu.addAction(actionNewResident);
+    ResMenu.addAction(actionNewTypeResident);
+    ResMenu.addSeparator();
+    ResMenu.addAction(actionNewChambre);
+    ResMenu.addAction(actionNewBatiment);
+    ResMenu.addSeparator();
+    ResMenu.addAction(actionEditResi);
+    ResMenu.addAction(actionDelResi);
+    ResMenu.exec(event->globalPos());
 }
+
+
+void ResidentPage::showResidentInfos(const QModelIndex &pindex) {
+    QModelIndex model_index = ex_proxyModel->mapToSource(pindex);
+    QStandardItem *item = ex_nomModel->itemFromIndex(model_index);
+    int rid = item->accessibleText().toInt();
+    
+    QSqlQuery queryRi;
+        queryRi.prepare("SELECT * FROM resident WHERE resident_id = :id");
+        queryRi.bindValue(":id", rid);
+    if(!queryRi.exec())
+        QMessageBox::critical(this, "Huston, we've a problem... :)", queryRi.lastError().text());
+    
+     QSqlRecord resRi = queryRi.record();
+         if(!resRi.isEmpty()) {
+             while(queryRi.next()) {
+                 QString rname = queryRi.value(resRi.indexOf("resident_nom")).toString(); 
+                 QString rprenom = queryRi.value(resRi.indexOf("resident_prenom")).toString(); 
+                 QString rdnais = queryRi.value(resRi.indexOf("resident_date_naissance")).toString(); 
+                 QString rlnais = queryRi.value(resRi.indexOf("resident_lieu_naissance")).toString(); 
+                 QString rgenre = queryRi.value(resRi.indexOf("resident_genre")).toString(); 
+                 int rtaille = queryRi.value(resRi.indexOf("resident_taille")).toInt(); 
+                 QString rphone1 = queryRi.value(resRi.indexOf("resident_phone_number")).toString(); 
+                 QString rphone2 = queryRi.value(resRi.indexOf("resident_phone_number2")).toString(); 
+                 QString rphone3 = queryRi.value(resRi.indexOf("resident_phone_number3")).toString(); 
+                 QString remail = queryRi.value(resRi.indexOf("resident_email")).toString(); 
+                 QString rmatricule = queryRi.value(resRi.indexOf("resident_matricule")).toString(); 
+                 QString rpic = queryRi.value(resRi.indexOf("resident_photo_name")).toString(); 
+
+                 if(!rpic.isNull() && !rpic.isEmpty())
+                     m_picResident->setPixmap(QPixmap(rpic));
+                 else
+                     m_picResident->setPixmap(QPixmap("img/user-icon.png"));
+                 
+                 m_nameResident->setText(QString(rname));
+                 QString inf = "Nom ";
+                 inf += rname;
+                 inf += "\n";
+
+                 if(!rprenom.isNull() && !rprenom.isEmpty()) {
+                     inf += "Prenom ";
+                     inf += rprenom;
+                     inf += "\n";
+                 }
+                 
+                 if(!rdnais.isNull() && !rdnais.isEmpty()) {
+                     inf += "Date de naissance ";
+                     inf += rdnais;
+                     inf += "\n";
+                 }
+
+                 if(!rlnais.isNull() && !rlnais.isEmpty()) {
+                     inf += "Lieu de naissance ";
+                     inf += rlnais;
+                     inf += "\n";
+                 }
+
+                 if(!rgenre.isNull() && !rgenre.isEmpty()) {
+                     inf += "Genre ";
+                     inf += rgenre;
+                     inf += "\n";
+                 }
+ 
+                 if(rtaille > 1) {
+                     inf += "Taille ";
+                     inf += QString::number(rtaille);
+                     inf += "\n";
+                 }
+
+                 if(!rphone1.isNull() && !rphone1.isEmpty() && rphone1 != "---") {
+                     inf += "Téléphone1 ";
+                     inf += rphone1;
+                     inf += "\n";
+                 }
+
+                 if(!rphone2.isNull() && !rphone2.isEmpty() && rphone2 != "---") {
+                     inf += "Téléphone2 ";
+                     inf += rphone2;
+                     inf += "\n";
+                 }
+
+                 if(!rphone3.isNull() && !rphone3.isEmpty() && rphone3 != "---") {
+                     inf += "Téléphone3 ";
+                     inf += rphone3;
+                     inf += "\n";
+                 }
+
+                 if(!remail.isNull() && !remail.isEmpty()) {
+                     inf += "Email ";
+                     inf += remail;
+                     inf += "\n";
+                 }
+
+                 if(!rmatricule.isNull() && !rmatricule.isEmpty()) {
+                     inf += "Matricule ";
+                     inf += rmatricule;
+                     inf += "\n";
+                 }
+
+
+
+
+                 m_textInfos->setText(QString(inf));
+                 QFont myfont = QFont("DejaVu Sans", 12, 40); 
+                 m_textInfos->setFont(myfont);
+             }
+         }
+
+
+}
+
+
+
+
+
+/* <========================= End ResidentPage =============================> */
 
 
 
