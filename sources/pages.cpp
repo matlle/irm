@@ -236,68 +236,68 @@ void ResidentPage::showResidentInfos(const QModelIndex &pindex) {
                      m_picResident->setPixmap(QPixmap("img/user-icon.png"));
                  
                  m_nameResident->setText(QString(rname));
-                 QString inf = "Nom ";
+                 QString inf = "<span style='color: gray;'><b>Nom:</b></span>  ";
                  inf += rname;
-                 inf += "\n";
+                 inf += "<br/>";
 
                  if(!rprenom.isNull() && !rprenom.isEmpty()) {
-                     inf += "Prenom ";
+                     inf += "<span style='color: gray;'><b>Prenom:</b></span>  ";
                      inf += rprenom;
-                     inf += "\n";
+                     inf += "<br/>";
                  }
                  
                  if(!rdnais.isNull() && !rdnais.isEmpty()) {
-                     inf += "Date de naissance ";
+                     inf += "<span style='color: gray;'><b>Date de naissance:</b></span>  ";
                      inf += rdnais;
-                     inf += "\n";
+                     inf += "<br/>";
                  }
 
                  if(!rlnais.isNull() && !rlnais.isEmpty()) {
-                     inf += "Lieu de naissance ";
+                     inf += "<span style='color: gray;'><b>Lieu de naissance:</b></span>  ";
                      inf += rlnais;
-                     inf += "\n";
+                     inf += "<br/>";
                  }
 
                  if(!rgenre.isNull() && !rgenre.isEmpty()) {
-                     inf += "Genre ";
+                     inf += "<span style='color: gray;'><b>Genre:</b></span>  ";
                      inf += rgenre;
-                     inf += "\n";
+                     inf += "<br/>";
                  }
  
                  if(rtaille > 1) {
-                     inf += "Taille ";
-                     inf += QString::number(rtaille);
-                     inf += "\n";
+                     inf += "<span style='color: gray;'><b>Taille:</b></span>  ";
+                     inf += QString::number(rtaille) + " cm";
+                     inf += "<br/>";
                  }
 
                  if(!rphone1.isNull() && !rphone1.isEmpty() && rphone1 != "---") {
-                     inf += "Téléphone1 ";
+                     inf += "<span style='color: gray;'><b>Téléphone1:</b></span>  ";
                      inf += rphone1;
-                     inf += "\n";
+                     inf += "<br/>";
                  }
 
                  if(!rphone2.isNull() && !rphone2.isEmpty() && rphone2 != "---") {
-                     inf += "Téléphone2 ";
+                     inf += "<span style='color: gray;'><b>Téléphone2:</b></span>  ";
                      inf += rphone2;
-                     inf += "\n";
+                     inf += "<br/>";
                  }
 
                  if(!rphone3.isNull() && !rphone3.isEmpty() && rphone3 != "---") {
-                     inf += "Téléphone3 ";
+                     inf += "<span style='color: gray;'><b>Téléphone3:</b></span>  ";
                      inf += rphone3;
-                     inf += "\n";
+                     inf += "<br/>";
                  }
 
                  if(!remail.isNull() && !remail.isEmpty()) {
-                     inf += "Email ";
+                     inf += "<span style='color: gray;'><b>Email:</b></span>  ";
                      inf += remail;
-                     inf += "\n";
+                     inf += "<br/>";
                  }
 
                  if(!rmatricule.isNull() && !rmatricule.isEmpty()) {
-                     inf += "Matricule ";
+                     inf += "<span style='color: gray;'><b>Matricule:</b></span>  ";
                      inf += rmatricule;
-                     inf += "\n";
+                     inf += "<br/>";
                  }
 
 
