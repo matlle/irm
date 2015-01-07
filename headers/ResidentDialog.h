@@ -20,7 +20,7 @@ class ResidentDialog : public QDialog {
       ResidentDialog(QWidget *parent);
       ResidentDialog(QVariantList list, QWidget *parent);
       void saveNewResident();
-      void saveEditedResident(int);
+      void saveEditedResident(const QModelIndex&, int);
       void remove_old_photo(int);
 
     public slots:
@@ -30,6 +30,7 @@ class ResidentDialog : public QDialog {
       QLineEdit *m_prenom;
       QDateEdit *m_dateNaissance;
       QLineEdit *m_lieuNaissance;
+      QLineEdit *m_profession;
       QComboBox *m_genre;
       QSpinBox  *m_taille;
       QLineEdit *m_matricule;

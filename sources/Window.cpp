@@ -28,6 +28,7 @@ Window::Window() {
 void Window::initMainWindow() {
 
     this->setStyleSheet("QListWidget#m_contentsWidget {background-color: #ccc;}");
+    //this->setStyleSheet("background-color: ;");
     
     setWindowTitle("ISTCJF RESIDENSE MANAGEMENT (IRM)");
     setWindowIcon(QIcon("img/logo.png"));
@@ -125,7 +126,6 @@ void Window::initMainWindow() {
     setCentralWidget(mainContainer);
     statusBar()->showMessage("Ready");
     showMaximized(); 
-
 
     // Events
     QObject::connect(actionNewResident, SIGNAL(triggered()), this, SLOT(newResident()));

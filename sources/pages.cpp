@@ -137,6 +137,7 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
                        v << querySr.value(resInfos.indexOf("resident_phone_number3")); // 12
                        v << querySr.value(resInfos.indexOf("resident_date_naissance")); // 13
                        v << querySr.value(resInfos.indexOf("resident_photo_name")); // 14
+                       v << querySr.value(resInfos.indexOf("resident_profession")); // 15
                 }
             }
         }
@@ -145,7 +146,7 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
         ResidentDialog *editResident = new ResidentDialog(v, this);
         int intret = editResident->exec();
         if (intret == QDialog::Accepted) {
-            editResident->saveEditedResident(rid);
+            editResident->saveEditedResident(pro_index, rid);
         }else if(intret == QDialog::Rejected) {
             if(!ex_photoName->isNull() && !ex_photoName->isEmpty()) {
                 QFile photoFile(*ex_photoName, this);
@@ -221,6 +222,7 @@ void ResidentPage::showResidentInfos(const QModelIndex &pindex) {
                  QString rprenom = queryRi.value(resRi.indexOf("resident_prenom")).toString(); 
                  QString rdnais = queryRi.value(resRi.indexOf("resident_date_naissance")).toString(); 
                  QString rlnais = queryRi.value(resRi.indexOf("resident_lieu_naissance")).toString(); 
+                 QString rprof = queryRi.value(resRi.indexOf("resident_profession")).toString(); 
                  QString rgenre = queryRi.value(resRi.indexOf("resident_genre")).toString(); 
                  int rtaille = queryRi.value(resRi.indexOf("resident_taille")).toInt(); 
                  QString rphone1 = queryRi.value(resRi.indexOf("resident_phone_number")).toString(); 
@@ -257,6 +259,14 @@ void ResidentPage::showResidentInfos(const QModelIndex &pindex) {
                      inf += rlnais;
                      inf += "<br/>";
                  }
+
+
+                 if(!rprof.isNull() && !rprof.isEmpty()) {
+                     inf += "<span style='color: gray;'><b>Profession:</b></span>  ";
+                     inf += rprof;
+                     inf += "<br/>";
+                 }
+
 
                  if(!rgenre.isNull() && !rgenre.isEmpty()) {
                      inf += "<span style='color: gray;'><b>Genre:</b></span>  ";
@@ -356,7 +366,7 @@ UpdatePage::UpdatePage(QWidget *parent)
      mainLayout->addSpacing(12);
      mainLayout->addWidget(startUpdateButton);
      mainLayout->addStretch(1);
-     setLayout(mainLayout);
+     //setLayout(mainLayout);
  }
 
  QueryPage::QueryPage(QWidget *parent)
@@ -398,5 +408,5 @@ UpdatePage::UpdatePage(QWidget *parent)
      mainLayout->addSpacing(12);
      mainLayout->addWidget(startQueryButton);
      mainLayout->addStretch(1);
-     setLayout(mainLayout);
+     //setLayout(mainLayout);
  }

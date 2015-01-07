@@ -37,6 +37,7 @@ ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
                    m_dateNaissance->setCalendarPopup(true);
                    m_dateNaissance->setDisplayFormat(QString("dd/MM/yyyy"));
         m_lieuNaissance = new QLineEdit(this);
+        m_profession = new QLineEdit(this);
         m_genre = new QComboBox(this);
                    m_genre->addItem("Homme");
                    m_genre->addItem("Femme");
@@ -57,6 +58,7 @@ ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
         infosForm->addRow("Prenom: ", m_prenom);
         infosForm->addRow("Date de naissance: ", m_dateNaissance);
         infosForm->addRow("Lieu de naissance: ", m_lieuNaissance);
+        infosForm->addRow("Profession: ", m_profession);
         infosForm->addRow("Genre: ", m_genre);
         infosForm->addRow("Taille (cm): ", m_taille);
         infosForm->addRow("Matricule: ", m_matricule);
@@ -316,6 +318,7 @@ ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDi
                    m_dateNaissance->setDisplayFormat(QString("dd/MM/yyyy"));
 
         m_lieuNaissance = new QLineEdit(listInfos[7].toString(), this);
+        m_profession = new QLineEdit(listInfos[15].toString(), this);
 
         m_genre = new QComboBox(this);
                    m_genre->addItem("Homme");
@@ -347,6 +350,7 @@ ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDi
         infosForm->addRow("Prenom: ", m_prenom);
         infosForm->addRow("Date de naissance: ", m_dateNaissance);
         infosForm->addRow("Lieu de naissance: ", m_lieuNaissance);
+        infosForm->addRow("Profession: ", m_profession);
         infosForm->addRow("Genre: ", m_genre);
         infosForm->addRow("Taille (cm): ", m_taille);
         infosForm->addRow("Matricule: ", m_matricule);
@@ -564,12 +568,13 @@ void ResidentDialog::saveNewResident() {
       if(!m_nom->text().isEmpty()) {
 
       QSqlQuery queryNr;
-      queryNr.prepare("INSERT INTO resident(resident_nom, resident_prenom, resident_date_naissance, resident_email, resident_phone_number, resident_phone_number2, resident_phone_number3, resident_lieu_naissance, resident_genre, resident_taille, resident_matricule, resident_photo_name)" 
-                            "VALUES (:nom, :prenom, :dateNais, :email, :phone1, :phone2, :phone3, :lieuNais, :genre, :taille, :matricule, :photo)");
+      queryNr.prepare("INSERT INTO resident(resident_nom, resident_prenom, resident_date_naissance, resident_profession, resident_email, resident_phone_number, resident_phone_number2, resident_phone_number3, resident_lieu_naissance, resident_genre, resident_taille, resident_matricule, resident_photo_name)" 
+                            "VALUES (:nom, :prenom, :dateNais, :prof, :email, :phone1, :phone2, :phone3, :lieuNais, :genre, :taille, :matricule, :photo)");
             
             queryNr.bindValue(":nom", m_nom->text());
             queryNr.bindValue(":prenom", m_prenom->text());
             queryNr.bindValue(":dateNais", m_dateNaissance->date().toString("dd/MM/yyyy"));
+            queryNr.bindValue(":prof", m_profession->text());
             queryNr.bindValue(":email", m_email->text());
             queryNr.bindValue(":phone1", m_telephone1->text());
             queryNr.bindValue(":phone2", m_telephone2->text());
@@ -587,7 +592,7 @@ void ResidentDialog::saveNewResident() {
                 int lid = queryNr.lastInsertId().toInt();
                 
                 QSqlQuery queryNi;
-                queryNi.prepare("SELECT resident_nom, resident_prenom FROM resident WHERE resident_id = :id");
+                queryNi.prepare("SELECT resident_nom, resident_prenom, resident_photo_name FROM resident WHERE resident_id = :id");
                 queryNi.bindValue(":id", lid);
                 if(!queryNi.exec())
                     QMessageBox::critical(this, "Huston, we got a error :)", queryNi.lastError().text());
@@ -597,15 +602,21 @@ void ResidentDialog::saveNewResident() {
                         while(queryNi.next()) {
                             QString sni = queryNi.value(result.indexOf("resident_nom")).toString();
                             sni += " " + queryNi.value(result.indexOf("resident_prenom")).toString();
+                            QString nrpic = queryNi.value(result.indexOf("resident_photo_name")).toString();
                             QStandardItem *nii = new QStandardItem(sni);
                             QString ts = QString::number(lid);
                             nii->setAccessibleText(ts);
                             nii->setEditable(false);
-                            nii->setIcon(QIcon("img/user-icon.png"));
+                            if(!nrpic.isNull() && !nrpic.isEmpty())
+                                nii->setIcon(QIcon(nrpic));
+                            else
+                                nii->setIcon(QIcon("img/user-icon.png"));
+
                             ex_nomModel->appendRow(nii);
                         }
                     }
                 }
+                //queryNi.finish();
              *ex_photoName = ""; 
              QMessageBox::information(this, "Succès", "Resident enregistré!");
 
@@ -645,7 +656,7 @@ void ResidentDialog::remove_old_photo(int reid) {
 
 
 
-void ResidentDialog::saveEditedResident(int rid) {
+void ResidentDialog::saveEditedResident(const QModelIndex &ind, int rid) {
 
       if(!m_nom->text().isEmpty()) {
 
@@ -655,6 +666,7 @@ void ResidentDialog::saveEditedResident(int rid) {
                        SET resident_nom = :nom, \
                            resident_prenom = :prenom, \
                            resident_date_naissance = :dateNais, \
+                           resident_profession = :prof, \
                            resident_email = :email, \
                            resident_phone_number = :phone1, \ 
                            resident_phone_number2 = :phone2, \
@@ -670,6 +682,7 @@ void ResidentDialog::saveEditedResident(int rid) {
             queryNr.bindValue(":nom", m_nom->text());
             queryNr.bindValue(":prenom", m_prenom->text());
             queryNr.bindValue(":dateNais", m_dateNaissance->date().toString("dd/MM/yyyy"));
+            queryNr.bindValue(":prof", m_profession->text());
             queryNr.bindValue(":email", m_email->text());
             queryNr.bindValue(":phone1", m_telephone1->text());
             queryNr.bindValue(":phone2", m_telephone2->text());
@@ -691,34 +704,34 @@ void ResidentDialog::saveEditedResident(int rid) {
                 QMessageBox::critical(this, "Huston, we got a error :)", queryNr.lastError().text());
             else {
                 
-                 /*if(!m_photoname->isNull() && !m_photoname->isEmpty()) {
-                     QImage keepImage(*m_photoname);
-                     QImageWriter writerKeep(*m_photoname, "png");
-
-                     if(!writerKeep.write(keepImage)) {
-                         QMessageBox::critical(this, "Sélectioner une photo", writerKeep.errorString());
-                     }
-
-                  }*/
-
-                int lid = queryNr.lastInsertId().toInt();
+                 
+                //int lid = queryNr.lastInsertId().toInt();
                 
-                QSqlQuery queryNi;
-                queryNi.prepare("SELECT resident_nom, resident_prenom FROM resident WHERE resident_id = :id");
-                queryNi.bindValue(":id", lid);
-                if(!queryNi.exec())
-                    QMessageBox::critical(this, "Huston, we got a error :)", queryNi.lastError().text());
+                QSqlQuery queryUi;
+                queryUi.prepare("SELECT resident_nom, resident_prenom, resident_photo_name FROM resident WHERE resident_id = :id");
+                queryUi.bindValue(":id", rid);
+                if(!queryUi.exec())
+                    QMessageBox::critical(this, "Huston, we got a error :)", queryUi.lastError().text());
                 else {
-                    QSqlRecord result = queryNi.record();
+                    QSqlRecord result = queryUi.record();
                     if(!result.isEmpty()) {
-                        while(queryNi.next()) {
-                            QString sni = queryNi.value(result.indexOf("resident_nom")).toString();
-                            sni += " " + queryNi.value(result.indexOf("resident_prenom")).toString();
-                            QStandardItem *nii = new QStandardItem(sni);
-                            nii->setEditable(false);
-                            nii->setIcon(QIcon("img/user-icon.png"));
-                            ex_nomModel->appendRow(nii);
+                        while(queryUi.next()) {
+                            QString sui = queryUi.value(result.indexOf("resident_nom")).toString();
+                            sui += " " + queryUi.value(result.indexOf("resident_prenom")).toString();
+                            QString rpicn = queryUi.value(result.indexOf("resident_photo_name")).toString();
+                            QStandardItem *uii = new QStandardItem(sui);
+                            QString ts = QString::number(rid);
+                            uii->setAccessibleText(ts);
+                            uii->setEditable(false);
+                            if(!rpicn.isNull() && !rpicn.isEmpty())
+                                uii->setIcon(QIcon(rpicn));
+                            else
+                                uii->setIcon(QIcon("img/user-icon.png"));
+
+                            ex_nomModel->appendRow(uii);
+                            QMessageBox::information(this, "Message", "Modifié!");
                         }
+
                     }
                 }
              *ex_photoName = ""; 
