@@ -19,6 +19,7 @@ class ResidentPage : public QWidget {
         void showEdit(const QModelIndex&);
         void contextMenuEvent(QContextMenuEvent *event);
         void showResidentInfos(const QModelIndex&);
+        void removeResident();
 
     protected:
         QTreeView  *m_residentName;

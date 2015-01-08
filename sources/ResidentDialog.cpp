@@ -727,9 +727,15 @@ void ResidentDialog::saveEditedResident(const QModelIndex &ind, int rid) {
                                 uii->setIcon(QIcon(rpicn));
                             else
                                 uii->setIcon(QIcon("img/user-icon.png"));
+                            
 
+                            QModelIndex mindex = ex_proxyModel->mapToSource(ind);
+                            QStandardItem *oitem = ex_nomModel->itemFromIndex(mindex);
+                            int oitemRow = oitem->row();
+            
+                            ex_nomModel->removeRow(oitemRow);
                             ex_nomModel->appendRow(uii);
-                            QMessageBox::information(this, "Message", "Modifié!");
+                            //ex_nomModel->insertRow(0, uii);
                         }
 
                     }

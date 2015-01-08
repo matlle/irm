@@ -17,6 +17,7 @@ QAction *actionNewResident;
 QAction *actionNewTypeResident;
 QAction *actionNewChambre;
 QAction *actionNewBatiment;
+QAction *actionDelResi;
 
 
 QSqlDatabase db;
@@ -43,6 +44,10 @@ void Window::initMainWindow() {
             newElement->addSeparator();
                actionNewBatiment = newElement->addAction("Nouveau batiment");
                actionNewChambre = newElement->addAction("Nouvelle chambre");
+            actionDelResi = new QAction("Supprimer resident", this);
+            actionDelResi->setIcon(QIcon("img/button_cancel.png"));
+            actionDelResi->setStatusTip("Supprimer définitivement le resident selectioné du logiciel");
+
         QMenu *exporter = menuFile->addMenu("&Exporter");
             QAction *actionDocx = exporter->addAction("Exporter comme DOCX");
             QAction *actionPdf = exporter->addAction("Exporter comme PDF");

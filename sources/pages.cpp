@@ -67,6 +67,7 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          m_residentName->setSortingEnabled(true);
          m_residentName->setAlternatingRowColors(true);
          
+         QObject::connect(actionDelResi, SIGNAL(triggered()), this, SLOT(removeResident()));
          QObject::connect(m_residentName, SIGNAL(activated(QModelIndex)), this, SLOT(showEdit(QModelIndex)));
          QObject::connect(m_residentName, SIGNAL(clicked(QModelIndex)), this, SLOT(showResidentInfos(QModelIndex)));
 
@@ -188,9 +189,9 @@ void ResidentPage::contextMenuEvent(QContextMenuEvent *event) {
         QAction *actionEditResi = new QAction("Modifier resident", this);
             actionEditResi->setStatusTip("Apporter des modification au resident selectioné");
             actionEditResi->setIcon(QIcon("img/edit.png"));
-        QAction *actionDelResi = new QAction("Supprimer resident", this);
+        /*actionDelResi = new QAction("Supprimer resident", this);
             actionDelResi->setIcon(QIcon("img/button_cancel.png"));
-            actionDelResi->setStatusTip("Supprimer definitivement le resident selectioné du logiciel");
+            actionDelResi->setStatusTip("Supprimer definitivement le resident selectioné du logiciel");*/
 
     ResMenu.addAction(actionNewResident);
     ResMenu.addAction(actionNewTypeResident);
@@ -201,6 +202,13 @@ void ResidentPage::contextMenuEvent(QContextMenuEvent *event) {
     ResMenu.addAction(actionEditResi);
     ResMenu.addAction(actionDelResi);
     ResMenu.exec(event->globalPos());
+    
+
+}
+
+
+void ResidentPage::removeResident() {
+    int retanswer = QMessageBox::question(this, "Supprimer Resident?", "Etes vous sûr de vouloir supprimer definitivement le resident sélectioné du logiciel?", QMessageBox::No | QMessageBox::Yes);
 }
 
 
