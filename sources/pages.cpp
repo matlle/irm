@@ -148,6 +148,7 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
         int intret = editResident->exec();
         if (intret == QDialog::Accepted) {
             editResident->saveEditedResident(pro_index, rid);
+            //showResidentInfos(m_residentName->currentIndex());
         }else if(intret == QDialog::Rejected) {
             if(!ex_photoName->isNull() && !ex_photoName->isEmpty()) {
                 QFile photoFile(*ex_photoName, this);
