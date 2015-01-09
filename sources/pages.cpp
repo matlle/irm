@@ -28,6 +28,8 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          typeResident->setMinimumWidth(130);
 
      m_residentName = new QTreeView(this);
+     m_residentName->setSelectionBehavior(QAbstractItemView::SelectItems);
+     m_residentName->setSelectionMode(QAbstractItemView::SingleSelection);
          ex_nomModel = new QStandardItemModel(this);
          ex_proxyModel = new QSortFilterProxyModel(this);
 
@@ -53,7 +55,6 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
              }
         }
 
-        // updateResidentList(); 
 
          ex_nomModel->setHorizontalHeaderLabels(QStringList("Nom Resident"));
 
@@ -68,12 +69,11 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          m_residentName->setAlternatingRowColors(true);
          
          QObject::connect(actionDelResi, SIGNAL(triggered()), this, SLOT(removeResident()));
-         QObject::connect(m_residentName, SIGNAL(activated(QModelIndex)), this, SLOT(showEdit(QModelIndex)));
+         QObject::connect(m_residentName, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(showEdit(QModelIndex)));
          QObject::connect(m_residentName, SIGNAL(clicked(QModelIndex)), this, SLOT(showResidentInfos(QModelIndex)));
 
      QWidget *infosResident = new QWidget(this);
          m_textInfos = new QLabel(this);
-                 //textInfos->setText(QString("Informations: de la diaspora\nPays: Unknown\nSituation: Critical..."));
                  m_textInfos->setAlignment(Qt::AlignLeft);
                  m_textInfos->setIndent(20);
          m_picResident = new QLabel(this);
@@ -161,26 +161,6 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
 }
 
 
-/*void ResidentPage::updateResidentList() {
-    QSqlQuery query("SELECT resident_nom FROM resident");
-         if(query.lastError().isValid())
-             QMessageBox::critical(this, "Error", query.lastError().text());
-         else {
-             QSqlRecord results = query.record();
-             if(!results.isEmpty()) {
-                 while(query.next()) {
-                    QStandardItem  *ni =  new QStandardItem(query.value(results.indexOf("resident_nom")).toString());
-                    ni->setEditable(false);
-                    ni->setIcon(QIcon("img/user-icon.png"));
-                     ex_nomModel->appendRow(ni);
-                 }
-             }
-        }
-
-
-}*/
-
-
 
 
 void ResidentPage::contextMenuEvent(QContextMenuEvent *event) {
@@ -208,8 +188,67 @@ void ResidentPage::contextMenuEvent(QContextMenuEvent *event) {
 
 
 void ResidentPage::removeResident() {
-    int retanswer = QMessageBox::question(this, "Supprimer Resident?", "Etes vous sûr de vouloir supprimer definitivement le resident sélectioné du logiciel?", QMessageBox::No | QMessageBox::Yes);
+     QModelIndex ind = m_residentName->currentIndex();
+     QModelIndex model_index = ex_proxyModel->mapToSource(ind);
+     QStandardItem *item = ex_nomModel->itemFromIndex(model_index);
+     QString resident_name = item->text();
+
+    int retanswer = QMessageBox::question(this, "Supprimer Resident?", 
+            "Etes vous sûr de vouloir supprimer definitivement "
+           "<b> <br/>" + resident_name + "</b> du logiciel?", 
+            QMessageBox::No | QMessageBox::Yes);
+
+    if(retanswer == QMessageBox::Yes) {
+        int rid = item->accessibleText().toInt();
+        int itemRow = item->row();
+
+       // remove photo file
+       QSqlQuery queryPhoto;
+           queryPhoto.prepare("SELECT resident_photo_name FROM resident WHERE resident_id = :tid");
+               queryPhoto.bindValue(":tid", rid);
+                   if(!queryPhoto.exec()) {
+                       QMessageBox::critical(this, "Huston, we got a problem...", "Impossible d'obetenir l'anciene photo du resident");
+                       return;
+                    }
+                QSqlRecord resphoto = queryPhoto.record();
+                if(!resphoto.isEmpty()) {
+                    while(queryPhoto.next()) {
+                        QString picname = queryPhoto.value(resphoto.indexOf("resident_photo_name")).toString();
+                            if(!picname.isNull() && !picname.isEmpty()) {
+                                QFile picFile(picname, this);
+                                    if(!picFile.remove())
+                                        QMessageBox::warning(this, "Huston, we got a problem...", "Erreur lors de la suppression de l'anciene photo du resident\n" + picname);
+                             }
+                    }
+                 }
+
+
+
+       // delete from db
+        QSqlQuery queryRd;
+            queryRd.prepare("DELETE FROM resident WHERE resident_id = :id");
+            queryRd.bindValue(":id", rid);
+        if(!queryRd.exec()) {
+            QMessageBox::critical(this, "Huston, we've a problem... :)", queryRd.lastError().text());
+            return;
+        }
+
+        QModelIndex indexA = m_residentName->indexAbove(ind);
+        QModelIndex indexB = m_residentName->indexBelow(ind);
+        ex_nomModel->removeRow(itemRow);
+        if(indexA.isValid())
+            showResidentInfos(m_residentName->currentIndex());
+        else if(indexB.isValid())
+            showResidentInfos(m_residentName->currentIndex());
+
+     }
+
 }
+
+
+
+
+
 
 
 void ResidentPage::showResidentInfos(const QModelIndex &pindex) {
