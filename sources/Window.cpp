@@ -82,6 +82,10 @@ void Window::initMainWindow() {
     QMenu *menuView = menuBar()->addMenu("&Affichage");
     QMenu *menuSettings = menuBar()->addMenu("&Paramètre");
     QMenu *menuHelp = menuBar()->addMenu("&Aide");
+        QAction  *actionAboutIrm = new QAction("A propos de IRM", this);
+                  actionAboutIrm->setIcon(QIcon("img/logo.png"));
+        menuHelp->addAction(actionAboutIrm);
+ 
     
 
 
@@ -134,6 +138,7 @@ void Window::initMainWindow() {
 
     // Events
     QObject::connect(actionNewResident, SIGNAL(triggered()), this, SLOT(newResident()));
+    QObject::connect(actionAboutIrm, SIGNAL(triggered()), this, SLOT(aboutIrm()));
     QObject::connect(searchField, SIGNAL(textEdited(QString)), ex_proxyModel, SLOT(setFilterFixedString(QString)));
     QObject::connect(actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
@@ -196,4 +201,20 @@ void Window::newResident() {
 }
 
 
-
+void Window::aboutIrm() {
+    QMessageBox::about(this, "A propos d'IRM", 
+            "<h2>ISTCJF RESIDENCE MANAGEMENT (IRM)</h2>" 
+            "<h5>Version 0.1.0</h5>" 
+            "Logiciel de gestion developpé par <b>CRIXUS</b><br>"
+            "<center><h4>A propos d'IRM</h4></center>"
+            "<center>IRM est un logiciel pour gérer et administrer l'ensemble des<br/> residents et leurs "
+            "differentes activités au sein de la residence <br/>universitaire située à ISTCJF BONOUA</center><br/>"
+            "<center><h4>Auteurs</h4></center>"
+            "<b>Martial K. Babo</b><br/>"
+            "(+225) 07-08-68-98 / 41-87-07-68 / 54-57-87-42<br/>"
+            "paso.175@gmail.com<br/><br/>"
+            "<b>Christian Kouamelan</b><br/>"
+            "<span style='margin-left: 10px;'>(+225) 01-58-03-30<span><br/><br/>"
+            "<center>Copyright (c) 2015 <b>CRIXUS</b> auteurs</center>"
+            );
+}
