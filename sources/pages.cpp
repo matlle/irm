@@ -11,7 +11,7 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
      QSqlDatabase db = DBFactory::getConnection(this); 
      QSplitter *splitter = new QSplitter(this);
 
-     QTreeView *typeResident = new QTreeView;
+     m_typeResident = new QTreeView;
          QStandardItemModel *typeModel = new QStandardItemModel;
          QStandardItem *type1 = new QStandardItem("Etudiant");
                         type1->setCheckable(true);
@@ -24,8 +24,8 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          typeModel->appendRow(type3);
          typeModel->setHorizontalHeaderLabels(QStringList("Type Resident"));
 
-         typeResident->setModel(typeModel);
-         typeResident->setMinimumWidth(130);
+         m_typeResident->setModel(typeModel);
+         m_typeResident->setMinimumWidth(130);
 
      m_residentName = new QTreeView(this);
      m_residentName->setSelectionBehavior(QAbstractItemView::SelectItems);
@@ -69,7 +69,8 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          m_residentName->setAlternatingRowColors(true);
          
          QObject::connect(actionDelResi, SIGNAL(triggered()), this, SLOT(removeResident()));
-         QObject::connect(m_residentName, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(showEdit(QModelIndex)));
+         QObject::connect(actionEditResi, SIGNAL(triggered()), this, SLOT(showEditOnEditAction()));
+         QObject::connect(m_residentName, SIGNAL(activated(QModelIndex)), this, SLOT(showEdit(QModelIndex)));
          QObject::connect(m_residentName, SIGNAL(clicked(QModelIndex)), this, SLOT(showResidentInfos(QModelIndex)));
 
      QWidget *infosResident = new QWidget(this);
@@ -95,7 +96,7 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          infosResident->resize(1100, infosResident->height());
          infosResident->setLayout(infosLayout);
 
-     splitter->addWidget(typeResident);
+     splitter->addWidget(m_typeResident);
      splitter->addWidget(m_residentName);
      splitter->addWidget(infosResident);
 
@@ -104,6 +105,69 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
      setLayout(mainLayout);
      
  }
+
+
+
+
+void ResidentPage::showEditOnEditAction() {
+    QModelIndex pro_index = m_residentName->currentIndex();
+    QModelIndex model_index = ex_proxyModel->mapToSource(pro_index);
+    QStandardItem *item = ex_nomModel->itemFromIndex(model_index);
+    int rid = item->accessibleText().toInt();
+    if(item != 0) {
+        QString rsname = item->text();
+        QStringList list = rsname.split(" ");
+        QString nom = (QString) list.first();
+        QVariantList v;
+        QSqlQuery querySr;
+        querySr.prepare("SELECT * FROM resident WHERE resident_id = :id");
+        querySr.bindValue(":id", rid);
+        if(!querySr.exec())
+            QMessageBox::critical(this, "Huston, we've a problem... :)", querySr.lastError().text());
+        else {
+            QSqlRecord resInfos = querySr.record();
+            if(!resInfos.isEmpty()) {
+                while(querySr.next()) {
+                       v << querySr.value(resInfos.indexOf("resident_id")); // 0
+                       v << querySr.value(resInfos.indexOf("resident_nom")); // 1
+                       v << querySr.value(resInfos.indexOf("resident_prenom")); // 2
+                       v << querySr.value(resInfos.indexOf("resident_email")); // 3
+                       v << querySr.value(resInfos.indexOf("resident_phone_number")); // 4
+                       v << querySr.value(resInfos.indexOf("type_resident_id")); // 5
+                       v << querySr.value(resInfos.indexOf("resident_photo_name")); // 6
+                       v << querySr.value(resInfos.indexOf("resident_lieu_naissance")); // 7
+                       v << querySr.value(resInfos.indexOf("resident_genre")); // 8
+                       v << querySr.value(resInfos.indexOf("resident_taille")); // 9
+                       v << querySr.value(resInfos.indexOf("resident_matricule")); // 10
+                       v << querySr.value(resInfos.indexOf("resident_phone_number2")); // 11
+                       v << querySr.value(resInfos.indexOf("resident_phone_number3")); // 12
+                       v << querySr.value(resInfos.indexOf("resident_date_naissance")); // 13
+                       v << querySr.value(resInfos.indexOf("resident_photo_name")); // 14
+                       v << querySr.value(resInfos.indexOf("resident_profession")); // 15
+                }
+            }
+        }
+          
+        
+        ResidentDialog *editResident = new ResidentDialog(v, this);
+        int intret = editResident->exec();
+        if (intret == QDialog::Accepted) {
+            editResident->saveEditedResident(pro_index, rid);
+            //showResidentInfos(m_residentName->currentIndex());
+        }else if(intret == QDialog::Rejected) {
+            if(!ex_photoName->isNull() && !ex_photoName->isEmpty()) {
+                QFile photoFile(*ex_photoName, this);
+                if(!photoFile.remove())
+                    QMessageBox::warning(this, "Huston, we got a problem...", "Erreur de suppression du fichier temporaire\n " + *ex_photoName);
+                *ex_photoName = "";
+            }
+        }
+
+    }
+}
+
+
+
 
 void ResidentPage::showEdit(const QModelIndex &pro_index) {
     QModelIndex model_index = ex_proxyModel->mapToSource(pro_index);
@@ -167,12 +231,11 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
 void ResidentPage::contextMenuEvent(QContextMenuEvent *event) {
 
     QMenu ResMenu(this);
-        QAction *actionEditResi = new QAction("Modifier resident", this);
-            actionEditResi->setStatusTip("Apporter des modification au resident selectioné");
-            actionEditResi->setIcon(QIcon("img/edit.png"));
-        /*actionDelResi = new QAction("Supprimer resident", this);
-            actionDelResi->setIcon(QIcon("img/button_cancel.png"));
-            actionDelResi->setStatusTip("Supprimer definitivement le resident selectioné du logiciel");*/
+
+    if(!m_residentName->currentIndex().isValid()) {
+        actionDelResi->setEnabled(false);
+        actionEditResi->setEnabled(false);
+    } 
 
     ResMenu.addAction(actionNewResident);
     ResMenu.addAction(actionNewTypeResident);

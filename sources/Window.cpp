@@ -11,6 +11,7 @@
 #include "DBFactory.h"
 #include "pages.h"
 #include "ResidentDialog.h"
+#include "typeresidentdialog.h"
 #include "common.h"
 
 QAction *actionNewResident;
@@ -18,6 +19,7 @@ QAction *actionNewTypeResident;
 QAction *actionNewChambre;
 QAction *actionNewBatiment;
 QAction *actionDelResi;
+QAction *actionEditResi;
 
 
 QSqlDatabase db;
@@ -48,6 +50,11 @@ void Window::initMainWindow() {
             actionDelResi->setIcon(QIcon("img/button_cancel.png"));
             actionDelResi->setStatusTip("Supprimer définitivement le resident selectioné du logiciel");
 
+            actionEditResi = new QAction("Modifier resident", this);
+            actionEditResi->setIcon(QIcon("img/edit.png"));
+            actionEditResi->setStatusTip("Modifier le resident selectioné");
+
+
         QMenu *exporter = menuFile->addMenu("&Exporter");
             QAction *actionDocx = exporter->addAction("Exporter comme DOCX");
             QAction *actionPdf = exporter->addAction("Exporter comme PDF");
@@ -58,6 +65,8 @@ void Window::initMainWindow() {
 
         // set shortcut
         actionExit->setShortcut(QKeySequence("Ctrl+Q"));
+        actionNewResident->setShortcut(QKeySequence("Ctrl+N"));
+        actionNewTypeResident->setShortcut(QKeySequence("Ctrl+T"));
 
         // set icons
         actionNewResident->setIcon(QIcon("img/add_user.png"));
@@ -138,6 +147,7 @@ void Window::initMainWindow() {
 
     // Events
     QObject::connect(actionNewResident, SIGNAL(triggered()), this, SLOT(newResident()));
+    QObject::connect(actionNewTypeResident, SIGNAL(triggered()), this, SLOT(newTypeResident()));
     QObject::connect(actionAboutIrm, SIGNAL(triggered()), this, SLOT(aboutIrm()));
     QObject::connect(searchField, SIGNAL(textEdited(QString)), ex_proxyModel, SLOT(setFilterFixedString(QString)));
     QObject::connect(actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
@@ -183,6 +193,7 @@ void Window::changePage(QListWidgetItem *current, QListWidgetItem *previous) {
     m_pagesWidget->setCurrentIndex(m_contentsWidget->row(current));
 }
 
+
 void Window::newResident() {
     ResidentDialog *resident = new ResidentDialog(this);
     int intAct = resident->exec();
@@ -199,6 +210,20 @@ void Window::newResident() {
 
 
 }
+
+
+
+void Window::newTypeResident() {
+    TypeResidentDialog *type_resident = new TypeResidentDialog(this);
+    int intAct = type_resident->exec();
+    if (intAct == QDialog::Accepted) {
+       type_resident->saveNewTypeResident();
+    } 
+
+}
+
+
+
 
 
 void Window::aboutIrm() {

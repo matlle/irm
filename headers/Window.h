@@ -31,6 +31,7 @@ class Window : public QMainWindow {
     public slots:
         void changePage(QListWidgetItem *current, QListWidgetItem *previous);
         void newResident();
+        void newTypeResident();
         void aboutIrm();
     
     protected:

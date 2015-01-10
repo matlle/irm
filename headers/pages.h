@@ -17,12 +17,14 @@ class ResidentPage : public QWidget {
 
     public slots:
         void showEdit(const QModelIndex&);
+        void showEditOnEditAction();
         void contextMenuEvent(QContextMenuEvent *event);
         void showResidentInfos(const QModelIndex&);
         void removeResident();
 
     protected:
         QTreeView  *m_residentName;
+        QTreeView  *m_typeResident;
         QLabel     *m_picResident;
         QLabel     *m_nameResident;         
         QLabel     *m_textInfos;
