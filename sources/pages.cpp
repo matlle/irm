@@ -1,30 +1,26 @@
 #include "pages.h"
 #include "Window.h"
 #include "ResidentDialog.h"
+#include "typeresidentdialog.h"
 #include "common.h"
 #include "DBFactory.h"
 
 QSortFilterProxyModel *ex_proxyModel;
 QStandardItemModel *ex_nomModel;
+QStandardItemModel *ex_typeModel;
 
 ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
      QSqlDatabase db = DBFactory::getConnection(this); 
      QSplitter *splitter = new QSplitter(this);
 
      m_typeResident = new QTreeView;
-         QStandardItemModel *typeModel = new QStandardItemModel;
-         QStandardItem *type1 = new QStandardItem("Etudiant");
-                        type1->setCheckable(true);
-         QStandardItem *type2 = new QStandardItem("Professionnel");
-                        type2->setCheckable(true);
-         QStandardItem *type3 = new QStandardItem("Autre");
-                        type3->setCheckable(true);
-         typeModel->appendRow(type1);
-         typeModel->appendRow(type2);
-         typeModel->appendRow(type3);
-         typeModel->setHorizontalHeaderLabels(QStringList("Type Resident"));
+         ex_typeModel = new QStandardItemModel;
+         
+         updateTypeResidentTree();
+         
+         ex_typeModel->setHorizontalHeaderLabels(QStringList("Type Resident"));
 
-         m_typeResident->setModel(typeModel);
+         m_typeResident->setModel(ex_typeModel);
          m_typeResident->setMinimumWidth(130);
 
      m_residentName = new QTreeView(this);
@@ -33,28 +29,7 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          ex_nomModel = new QStandardItemModel(this);
          ex_proxyModel = new QSortFilterProxyModel(this);
 
-         QSqlQuery query("SELECT resident_id, resident_nom, resident_prenom, resident_photo_name FROM resident");
-         if(query.lastError().isValid())
-             QMessageBox::critical(this, "Error", query.lastError().text());
-         else {
-             QSqlRecord results = query.record();
-             if(!results.isEmpty()) {
-                 while(query.next()) {
-                     QString rphoto = query.value(results.indexOf("resident_photo_name")).toString(); 
-                     QString rn = query.value(results.indexOf("resident_nom")).toString();
-                             rn += " " + query.value(results.indexOf("resident_prenom")).toString();
-                     QStandardItem *ni = new QStandardItem(rn);
-                     ni->setAccessibleText(query.value(results.indexOf("resident_id")).toString());
-                     ni->setEditable(false);
-                     if(!rphoto.isNull() && !rphoto.isEmpty())
-                         ni->setIcon(QIcon(rphoto));
-                     else
-                         ni->setIcon(QIcon("img/user-icon.png"));
-                     ex_nomModel->appendRow(ni);
-                }
-             }
-        }
-
+         updateResidentTree();
 
          ex_nomModel->setHorizontalHeaderLabels(QStringList("Nom Resident"));
 
@@ -70,6 +45,9 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          
          QObject::connect(actionDelResi, SIGNAL(triggered()), this, SLOT(removeResident()));
          QObject::connect(actionEditResi, SIGNAL(triggered()), this, SLOT(showEditOnEditAction()));
+         QObject::connect(actionDelTypeResi, SIGNAL(triggered()), this, SLOT(removeTypeResident()));
+         QObject::connect(actionEditTypeResi, SIGNAL(triggered()), this, SLOT(showEditTypeResiOnEditAction()));
+         QObject::connect(m_typeResident, SIGNAL(activated(QModelIndex)), this, SLOT(showEditTypeResident(QModelIndex)));
          QObject::connect(m_residentName, SIGNAL(activated(QModelIndex)), this, SLOT(showEdit(QModelIndex)));
          QObject::connect(m_residentName, SIGNAL(clicked(QModelIndex)), this, SLOT(showResidentInfos(QModelIndex)));
 
@@ -227,15 +205,107 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
 
 
 
+void ResidentPage::showEditTypeResident(const QModelIndex &type_index) {
+    QStandardItem *item = ex_typeModel->itemFromIndex(type_index);
+    int trid = item->accessibleText().toInt();
+    if(item != 0) {
+        QString rsname = item->text();
+        QVariantList v;
+        QSqlQuery querySr;
+        querySr.prepare("SELECT * FROM type_resident WHERE type_resident_id = :id");
+        querySr.bindValue(":id", trid);
+        if(!querySr.exec())
+            QMessageBox::critical(this, "Huston, we've a problem... :)", querySr.lastError().text());
+        else {
+            QSqlRecord resInfos = querySr.record();
+            if(!resInfos.isEmpty()) {
+                while(querySr.next()) {
+                       v << querySr.value(resInfos.indexOf("type_resident_id")); // 0
+                       v << querySr.value(resInfos.indexOf("type_resident_name")); // 1
+                }
+            }
+        }
+          
+        
+        TypeResidentDialog *editTypeResident = new TypeResidentDialog(v, this);
+        int intret = editTypeResident->exec();
+        if (intret == QDialog::Accepted) {
+            editTypeResident->saveEditedTypeResident(type_index, trid);
+            //showResidentInfos(m_residentName->currentIndex());
+        }
+
+    }
+}
+
+
+
+void ResidentPage::showEditTypeResiOnEditAction() {
+
+    QModelIndex type_index = m_typeResident->currentIndex();
+    QStandardItem *item = ex_typeModel->itemFromIndex(type_index);
+    int trid = item->accessibleText().toInt();
+
+    if(item != 0) {
+        QString rsname = item->text();
+        QVariantList v;
+        QSqlQuery querySr;
+        querySr.prepare("SELECT * FROM type_resident WHERE type_resident_id = :id");
+        querySr.bindValue(":id", trid);
+        if(!querySr.exec())
+            QMessageBox::critical(this, "Huston, we've a problem... :)", querySr.lastError().text());
+        else {
+            QSqlRecord resInfos = querySr.record();
+            if(!resInfos.isEmpty()) {
+                while(querySr.next()) {
+                       v << querySr.value(resInfos.indexOf("type_resident_id")); // 0
+                       v << querySr.value(resInfos.indexOf("type_resident_name")); // 1
+                }
+            }
+        }
+          
+        
+        TypeResidentDialog *editTypeResident = new TypeResidentDialog(v, this);
+        int intret = editTypeResident->exec();
+        if (intret == QDialog::Accepted) {
+            editTypeResident->saveEditedTypeResident(type_index, trid);
+            //showResidentInfos(m_residentName->currentIndex());
+        }
+
+    }
+}
+
+
+
+
+
+
 
 void ResidentPage::contextMenuEvent(QContextMenuEvent *event) {
 
     QMenu ResMenu(this);
 
+
     if(!m_residentName->currentIndex().isValid()) {
         actionDelResi->setEnabled(false);
         actionEditResi->setEnabled(false);
-    } 
+    } else {
+        actionDelResi->setEnabled(true);
+        actionEditResi->setEnabled(true);
+    }
+
+
+
+    if(!m_typeResident->currentIndex().isValid()) {
+        actionDelTypeResi->setEnabled(false);
+        actionEditTypeResi->setEnabled(false);
+    } else {
+        actionDelTypeResi->setEnabled(true);
+        actionEditTypeResi->setEnabled(true);
+    }
+
+
+
+
 
     ResMenu.addAction(actionNewResident);
     ResMenu.addAction(actionNewTypeResident);
@@ -245,6 +315,9 @@ void ResidentPage::contextMenuEvent(QContextMenuEvent *event) {
     ResMenu.addSeparator();
     ResMenu.addAction(actionEditResi);
     ResMenu.addAction(actionDelResi);
+    ResMenu.addSeparator();
+    ResMenu.addAction(actionEditTypeResi);
+    ResMenu.addAction(actionDelTypeResi);
     ResMenu.exec(event->globalPos());
     
 
@@ -308,6 +381,53 @@ void ResidentPage::removeResident() {
      }
 
 }
+
+
+
+
+void ResidentPage::removeTypeResident() {
+     QModelIndex type_index = m_typeResident->currentIndex();
+     QStandardItem *item = ex_typeModel->itemFromIndex(type_index);
+     QString type_resident_name = item->text();
+
+    int retanswer = QMessageBox::question(this, "Supprimer Type Resident?", 
+            "Etes vous sûr de vouloir supprimer definitivement le type "
+           "<b> <br/>" + type_resident_name + "</b> du logiciel?", 
+            QMessageBox::No | QMessageBox::Yes);
+
+    if(retanswer == QMessageBox::Yes) {
+        int trid = item->accessibleText().toInt();
+        int itemRow = item->row();
+
+       
+       // delete from db
+        QSqlQuery queryRd;
+            queryRd.prepare("DELETE FROM type_resident WHERE type_resident_id = :id");
+            queryRd.bindValue(":id", trid);
+        if(!queryRd.exec()) {
+            QMessageBox::critical(this, "Huston, we've a problem... :)", queryRd.lastError().text());
+            return;
+        }
+
+        ex_typeModel->removeRow(itemRow);
+
+        /*QModelIndex indexA = m_residentName->indexAbove(ind);
+        QModelIndex indexB = m_residentName->indexBelow(ind);
+        ex_nomModel->removeRow(itemRow);
+        if(indexA.isValid())
+            showResidentInfos(m_residentName->currentIndex());
+        else if(indexB.isValid())
+            showResidentInfos(m_residentName->currentIndex());*/
+
+     }
+
+}
+
+
+
+
+
+
 
 
 
@@ -434,6 +554,59 @@ void ResidentPage::showResidentInfos(const QModelIndex &pindex) {
 }
 
 
+
+void ResidentPage::updateResidentTree() {
+
+         QSqlQuery query("SELECT resident_id, resident_nom, resident_prenom, resident_photo_name FROM resident");
+         if(query.lastError().isValid())
+             QMessageBox::critical(this, "Error", query.lastError().text());
+         else {
+             QSqlRecord results = query.record();
+             if(!results.isEmpty()) {
+                 while(query.next()) {
+                     QString rphoto = query.value(results.indexOf("resident_photo_name")).toString(); 
+                     QString rn = query.value(results.indexOf("resident_nom")).toString();
+                             rn += " " + query.value(results.indexOf("resident_prenom")).toString();
+                     QStandardItem *ni = new QStandardItem(rn);
+                     ni->setAccessibleText(query.value(results.indexOf("resident_id")).toString());
+                     ni->setEditable(false);
+                     if(!rphoto.isNull() && !rphoto.isEmpty())
+                         ni->setIcon(QIcon(rphoto));
+                     else
+                         ni->setIcon(QIcon("img/user-icon.png"));
+                     ex_nomModel->appendRow(ni);
+                }
+             }
+        }
+
+
+}
+
+
+
+
+
+void ResidentPage::updateTypeResidentTree() {
+
+         QSqlQuery query("SELECT type_resident_id, type_resident_name FROM type_resident");
+         if(query.lastError().isValid())
+             QMessageBox::critical(this, "Error", query.lastError().text());
+         else {
+             QSqlRecord results = query.record();
+             if(!results.isEmpty()) {
+                 while(query.next()) {
+                     QString rn = query.value(results.indexOf("type_resident_name")).toString();
+                     QStandardItem *ni = new QStandardItem(rn);
+                     ni->setAccessibleText(query.value(results.indexOf("type_resident_id")).toString());
+                     ni->setEditable(false);
+                     ni->setCheckable(true);
+                     ni->setIcon(QIcon("img/resource-group.png"));
+                     ex_typeModel->appendRow(ni);
+                }
+             }
+        }
+
+}
 
 
 

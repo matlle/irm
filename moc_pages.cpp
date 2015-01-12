@@ -22,7 +22,7 @@ static const uint qt_meta_data_ResidentPage[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       5,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -32,19 +32,24 @@ static const uint qt_meta_data_ResidentPage[] = {
  // slots: signature, parameters, type, tag, flags
       14,   13,   13,   13, 0x0a,
       36,   13,   13,   13, 0x0a,
-      65,   59,   13,   13, 0x0a,
-     102,   13,   13,   13, 0x0a,
-     133,   13,   13,   13, 0x0a,
+      59,   13,   13,   13, 0x0a,
+      93,   13,   13,   13, 0x0a,
+     130,  124,   13,   13, 0x0a,
+     167,   13,   13,   13, 0x0a,
+     198,   13,   13,   13, 0x0a,
+     215,   13,   13,   13, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_ResidentPage[] = {
     "ResidentPage\0\0showEdit(QModelIndex)\0"
-    "showEditOnEditAction()\0event\0"
+    "showEditOnEditAction()\0"
+    "showEditTypeResident(QModelIndex)\0"
+    "showEditTypeResiOnEditAction()\0event\0"
     "contextMenuEvent(QContextMenuEvent*)\0"
     "showResidentInfos(QModelIndex)\0"
-    "removeResident()\0"
+    "removeResident()\0removeTypeResident()\0"
 };
 
 void ResidentPage::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -55,9 +60,12 @@ void ResidentPage::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
         switch (_id) {
         case 0: _t->showEdit((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
         case 1: _t->showEditOnEditAction(); break;
-        case 2: _t->contextMenuEvent((*reinterpret_cast< QContextMenuEvent*(*)>(_a[1]))); break;
-        case 3: _t->showResidentInfos((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
-        case 4: _t->removeResident(); break;
+        case 2: _t->showEditTypeResident((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
+        case 3: _t->showEditTypeResiOnEditAction(); break;
+        case 4: _t->contextMenuEvent((*reinterpret_cast< QContextMenuEvent*(*)>(_a[1]))); break;
+        case 5: _t->showResidentInfos((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
+        case 6: _t->removeResident(); break;
+        case 7: _t->removeTypeResident(); break;
         default: ;
         }
     }
@@ -95,9 +103,9 @@ int ResidentPage::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 8)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 8;
     }
     return _id;
 }

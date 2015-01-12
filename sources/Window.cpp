@@ -20,6 +20,8 @@ QAction *actionNewChambre;
 QAction *actionNewBatiment;
 QAction *actionDelResi;
 QAction *actionEditResi;
+QAction *actionDelTypeResi;
+QAction *actionEditTypeResi;
 
 
 QSqlDatabase db;
@@ -33,7 +35,7 @@ void Window::initMainWindow() {
     this->setStyleSheet("QListWidget#m_contentsWidget {background-color: #ccc;}");
     //this->setStyleSheet("background-color: ;");
     
-    setWindowTitle("ISTCJF RESIDENSE MANAGEMENT (IRM)");
+    setWindowTitle("Istcjf Residence Management (IRM)");
     setWindowIcon(QIcon("img/logo.png"));
 
     QWidget *mainContainer = new QWidget;
@@ -46,13 +48,24 @@ void Window::initMainWindow() {
             newElement->addSeparator();
                actionNewBatiment = newElement->addAction("Nouveau batiment");
                actionNewChambre = newElement->addAction("Nouvelle chambre");
+            // resident   
             actionDelResi = new QAction("Supprimer resident", this);
-            actionDelResi->setIcon(QIcon("img/button_cancel.png"));
+            actionDelResi->setIcon(QIcon("img/remove-user.png"));
             actionDelResi->setStatusTip("Supprimer définitivement le resident selectioné du logiciel");
 
             actionEditResi = new QAction("Modifier resident", this);
             actionEditResi->setIcon(QIcon("img/edit.png"));
             actionEditResi->setStatusTip("Modifier le resident selectioné");
+            
+            // typeResident
+            actionDelTypeResi = new QAction("Supprimer type resident", this);
+            actionDelTypeResi->setIcon(QIcon("img/group-delete.png"));
+            actionDelTypeResi->setStatusTip("Supprimer définitivement du logiciel ce type de resident selectioné");
+            
+            actionEditTypeResi = new QAction("Modifier type resident", this);
+            actionEditTypeResi->setIcon(QIcon("img/edit-group.png"));
+            actionEditTypeResi->setStatusTip("Modifier ce type de resident selectioné");
+
 
 
         QMenu *exporter = menuFile->addMenu("&Exporter");

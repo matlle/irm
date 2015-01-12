@@ -17,7 +17,9 @@ int main(int argc, char *argv[]) {
         QLibraryInfo::location(QLibraryInfo::TranslationsPath));
     app.installTranslator(&translator);
 
+    //app.setStyle("plastique");
 
+    
     Window win;
     win.show();
 

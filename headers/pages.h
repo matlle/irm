@@ -14,13 +14,18 @@ class ResidentPage : public QWidget {
         ResidentPage(QWidget *parent = 0);
         void updateResidentList();
         void insertNewResident(int);
+        void updateResidentTree();
+        void updateTypeResidentTree();
 
     public slots:
         void showEdit(const QModelIndex&);
         void showEditOnEditAction();
+        void showEditTypeResident(const QModelIndex&);
+        void showEditTypeResiOnEditAction();
         void contextMenuEvent(QContextMenuEvent *event);
         void showResidentInfos(const QModelIndex&);
         void removeResident();
+        void removeTypeResident();
 
     protected:
         QTreeView  *m_residentName;
