@@ -8,9 +8,7 @@ QString *ex_photoName = new QString();
 ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
     
     m_typeResident = new QComboBox(this);
-    m_typeResident->addItem("Edutiant");
-    m_typeResident->addItem("Professionel");
-    m_typeResident->addItem("Autres");
+        updateTypeResidentComboBox();
 
     QFormLayout *listForm = new QFormLayout;
     listForm->addRow("Groupe: ", m_typeResident);
@@ -274,9 +272,7 @@ ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
 ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDialog(parent) {
     
     m_typeResident = new QComboBox(this);
-    m_typeResident->addItem("Edutiant");
-    m_typeResident->addItem("Professionel");
-    m_typeResident->addItem("Autres");
+    m_typeResident->addItem("");
 
     QFormLayout *listForm = new QFormLayout;
     listForm->addRow("Groupe: ", m_typeResident);
@@ -563,6 +559,30 @@ ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDi
 
 
 
+void ResidentDialog::updateTypeResidentComboBox() {
+
+         QSqlQuery query("SELECT type_resident_id, type_resident_name FROM type_resident");
+         if(query.lastError().isValid())
+             QMessageBox::critical(this, "Error", query.lastError().text());
+         else {
+             QSqlRecord results = query.record();
+             if(!results.isEmpty()) {
+                 while(query.next()) {
+                     QString trname = query.value(results.indexOf("type_resident_name")).toString();
+                     //QStandardItem *ni = new QStandardItem(rn);
+                     //ni->setAccessibleText(query.value(results.indexOf("type_resident_id")).toString());
+
+                     m_typeResident->addItem(trname);
+
+                }
+             }
+        }
+
+}
+
+
+
+
 void ResidentDialog::saveNewResident() {
 
       if(!m_nom->text().isEmpty()) {
@@ -584,6 +604,7 @@ void ResidentDialog::saveNewResident() {
             queryNr.bindValue(":taille", m_taille->value());
             queryNr.bindValue(":matricule", m_matricule->text());
             queryNr.bindValue(":photo", *ex_photoName);
+            queryNr.bindValue(":trid", m_typeResident->currentText());
 
             if(!queryNr.exec()) 
                 QMessageBox::critical(this, "Huston, we got a error :)", queryNr.lastError().text());

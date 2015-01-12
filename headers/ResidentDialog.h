@@ -22,6 +22,7 @@ class ResidentDialog : public QDialog {
       void saveNewResident();
       void saveEditedResident(const QModelIndex&, int);
       void remove_old_photo(int);
+      void updateTypeResidentComboBox();
 
     public slots:
         void selectPhoto();

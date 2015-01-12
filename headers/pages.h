@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QAbstractItemModel>
+#include <QStandardItem>
 #include <QTreeView>
 #include <QLabel>
 
@@ -26,6 +27,7 @@ class ResidentPage : public QWidget {
         void showResidentInfos(const QModelIndex&);
         void removeResident();
         void removeTypeResident();
+        void onItemChanged(QStandardItem*);
 
     protected:
         QTreeView  *m_residentName;

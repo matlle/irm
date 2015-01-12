@@ -15,7 +15,8 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
 
      m_typeResident = new QTreeView;
          ex_typeModel = new QStandardItemModel;
-         
+
+
          updateTypeResidentTree();
          
          ex_typeModel->setHorizontalHeaderLabels(QStringList("Type Resident"));
@@ -47,6 +48,9 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          QObject::connect(actionEditResi, SIGNAL(triggered()), this, SLOT(showEditOnEditAction()));
          QObject::connect(actionDelTypeResi, SIGNAL(triggered()), this, SLOT(removeTypeResident()));
          QObject::connect(actionEditTypeResi, SIGNAL(triggered()), this, SLOT(showEditTypeResiOnEditAction()));
+
+         QObject::connect(ex_typeModel,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
+
          QObject::connect(m_typeResident, SIGNAL(activated(QModelIndex)), this, SLOT(showEditTypeResident(QModelIndex)));
          QObject::connect(m_residentName, SIGNAL(activated(QModelIndex)), this, SLOT(showEdit(QModelIndex)));
          QObject::connect(m_residentName, SIGNAL(clicked(QModelIndex)), this, SLOT(showResidentInfos(QModelIndex)));
@@ -122,6 +126,7 @@ void ResidentPage::showEditOnEditAction() {
                        v << querySr.value(resInfos.indexOf("resident_date_naissance")); // 13
                        v << querySr.value(resInfos.indexOf("resident_photo_name")); // 14
                        v << querySr.value(resInfos.indexOf("resident_profession")); // 15
+                       v << querySr.value(resInfos.indexOf("type_resident_id")); // 16
                 }
             }
         }
@@ -181,6 +186,7 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
                        v << querySr.value(resInfos.indexOf("resident_date_naissance")); // 13
                        v << querySr.value(resInfos.indexOf("resident_photo_name")); // 14
                        v << querySr.value(resInfos.indexOf("resident_profession")); // 15
+                       v << querySr.value(resInfos.indexOf("type_resident_id")); // 16
                 }
             }
         }
@@ -274,6 +280,44 @@ void ResidentPage::showEditTypeResiOnEditAction() {
     }
 }
 
+
+
+void ResidentPage::onItemChanged(QStandardItem *item) {
+
+    Qt::CheckState state = item->checkState();
+    if(state == Qt::Checked) {
+        int trid = item->accessibleText().toInt(); 
+
+     QSqlQuery query;
+     query.prepare("SELECT resident_id, resident_nom, resident_prenom, resident_photo_name FROM resident WHERE type_resident_id = :trid");
+         query.bindValue(":trid", trid);
+         if(query.lastError().isValid())
+             QMessageBox::critical(this, "Error", query.lastError().text());
+         else {
+             QSqlRecord results = query.record();
+             if(!results.isEmpty()) {
+                 while(query.next()) {
+                     QString rphoto = query.value(results.indexOf("resident_photo_name")).toString(); 
+                     QString rn = query.value(results.indexOf("resident_nom")).toString();
+                             rn += " " + query.value(results.indexOf("resident_prenom")).toString();
+                     QStandardItem *ni = new QStandardItem(rn);
+                     ni->setAccessibleText(query.value(results.indexOf("resident_id")).toString());
+                     ni->setEditable(false);
+                     if(!rphoto.isNull() && !rphoto.isEmpty())
+                         ni->setIcon(QIcon(rphoto));
+                     else
+                         ni->setIcon(QIcon("img/user-icon.png"));
+                     ex_nomModel->appendRow(ni);
+                }
+             }
+        }
+
+
+    }
+
+
+
+}
 
 
 
@@ -422,14 +466,6 @@ void ResidentPage::removeTypeResident() {
      }
 
 }
-
-
-
-
-
-
-
-
 
 
 
