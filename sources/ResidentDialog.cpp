@@ -272,7 +272,32 @@ ResidentDialog::ResidentDialog(QWidget *parent = 0): QDialog(parent) {
 ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDialog(parent) {
     
     m_typeResident = new QComboBox(this);
-    m_typeResident->addItem("");
+        updateTypeResidentComboBox();
+
+    /*if(!listInfos[16].isNull() && !listInfos[16].toInt() == 0 && !listInfos[16].toString().isEmpty()) {
+
+             int etrid = listInfos[16].toInt();
+             QString trname;
+             QSqlQuery queryTrid;
+              queryTrid.prepare("SELECT type_resident_name FROM type_resident WHERE type_resident_id = :etrid");
+              queryTrid.bindValue(":etrid", etrid);
+              if(!queryTrid.exec())
+                  QMessageBox::critical(this, "Huston, we got a error :)", queryTrid.lastError().text());
+              else {
+                  QSqlRecord  tre = queryTrid.record();
+                  if(!tre.isEmpty()) {
+                      while(queryTrid.next()) {
+                          trname = queryTrid.value(tre.indexOf("type_resident_name")).toString();
+                      }
+                  }
+
+              }
+
+        m_typeResident->addItem(trname);
+
+    } else {
+        m_typeResident->addItem("");
+    }*/
 
     QFormLayout *listForm = new QFormLayout;
     listForm->addRow("Groupe: ", m_typeResident);
@@ -571,7 +596,7 @@ void ResidentDialog::updateTypeResidentComboBox() {
                      QString trname = query.value(results.indexOf("type_resident_name")).toString();
                      //QStandardItem *ni = new QStandardItem(rn);
                      //ni->setAccessibleText(query.value(results.indexOf("type_resident_id")).toString());
-
+                     
                      m_typeResident->addItem(trname);
 
                 }
@@ -586,10 +611,32 @@ void ResidentDialog::updateTypeResidentComboBox() {
 void ResidentDialog::saveNewResident() {
 
       if(!m_nom->text().isEmpty()) {
+      
+          QString trcname = m_typeResident->currentText();
+          int ttrid = 0;
+
+          if(!trcname.isNull() && !trcname.isEmpty()) {
+              QSqlQuery queryTrid;
+              queryTrid.prepare("SELECT type_resident_id FROM type_resident WHERE type_resident_name = :trname");
+              queryTrid.bindValue(":trname", trcname);
+              if(!queryTrid.exec())
+                  QMessageBox::critical(this, "Huston, we got a error :)", queryTrid.lastError().text());
+              else {
+                  QSqlRecord  tre = queryTrid.record();
+                  if(!tre.isEmpty()) {
+                      while(queryTrid.next()) {
+                          ttrid = queryTrid.value(tre.indexOf("type_resident_id")).toInt();
+                      }
+                  }
+
+              }
+          }
+
+
 
       QSqlQuery queryNr;
-      queryNr.prepare("INSERT INTO resident(resident_nom, resident_prenom, resident_date_naissance, resident_profession, resident_email, resident_phone_number, resident_phone_number2, resident_phone_number3, resident_lieu_naissance, resident_genre, resident_taille, resident_matricule, resident_photo_name)" 
-                            "VALUES (:nom, :prenom, :dateNais, :prof, :email, :phone1, :phone2, :phone3, :lieuNais, :genre, :taille, :matricule, :photo)");
+      queryNr.prepare("INSERT INTO resident(resident_nom, resident_prenom, resident_date_naissance, resident_profession, resident_email, resident_phone_number, resident_phone_number2, resident_phone_number3, resident_lieu_naissance, resident_genre, resident_taille, resident_matricule, resident_photo_name, type_resident_id)" 
+                            "VALUES (:nom, :prenom, :dateNais, :prof, :email, :phone1, :phone2, :phone3, :lieuNais, :genre, :taille, :matricule, :photo, :trid)");
             
             queryNr.bindValue(":nom", m_nom->text());
             queryNr.bindValue(":prenom", m_prenom->text());
@@ -604,7 +651,7 @@ void ResidentDialog::saveNewResident() {
             queryNr.bindValue(":taille", m_taille->value());
             queryNr.bindValue(":matricule", m_matricule->text());
             queryNr.bindValue(":photo", *ex_photoName);
-            queryNr.bindValue(":trid", m_typeResident->currentText());
+            queryNr.bindValue(":trid", ttrid);
 
             if(!queryNr.exec()) 
                 QMessageBox::critical(this, "Huston, we got a error :)", queryNr.lastError().text());
@@ -644,7 +691,7 @@ void ResidentDialog::saveNewResident() {
             }
 
   } else {
-      QMessageBox::critical(this, "Erreur - Le ouveau resident n'a pu être enregistré", "Vous devez saisir au moins le nom du resident");
+      QMessageBox::critical(this, "Erreur - Le nouveau resident n'a pu être enregistré", "Vous devez saisir au moins le nom du resident");
   }
 
 }
@@ -681,6 +728,23 @@ void ResidentDialog::saveEditedResident(const QModelIndex &ind, int rid) {
 
       if(!m_nom->text().isEmpty()) {
 
+              int ttrid = 0;      
+              QSqlQuery queryTrid;
+              queryTrid.prepare("SELECT type_resident_id FROM type_resident WHERE type_resident_name = :trname");
+              queryTrid.bindValue(":trname", m_typeResident->currentText());
+              if(!queryTrid.exec())
+                  QMessageBox::critical(this, "Huston, we got a error :)", queryTrid.lastError().text());
+              else {
+                  QSqlRecord  tre = queryTrid.record();
+                  if(!tre.isEmpty()) {
+                      while(queryTrid.next()) {
+                          ttrid = queryTrid.value(tre.indexOf("type_resident_id")).toInt();
+                      }
+                  }
+
+              }
+
+
           
       QSqlQuery queryNr;
       queryNr.prepare("UPDATE resident \
@@ -696,7 +760,8 @@ void ResidentDialog::saveEditedResident(const QModelIndex &ind, int rid) {
                            resident_genre = :genre, \
                            resident_taille = :taille, \
                            resident_matricule = :matricule, \
-                           resident_photo_name = :photo \
+                           resident_photo_name = :photo, \
+                           type_resident_id = :trid \
                        WHERE resident_id = :rid");
             
             queryNr.bindValue(":rid", rid);
@@ -712,6 +777,7 @@ void ResidentDialog::saveEditedResident(const QModelIndex &ind, int rid) {
             queryNr.bindValue(":genre", m_genre->currentText());
             queryNr.bindValue(":taille", m_taille->value());
             queryNr.bindValue(":matricule", m_matricule->text());
+            queryNr.bindValue(":trid", ttrid);
 
             if(!ex_photoName->isNull() && !ex_photoName->isEmpty()) {
                 queryNr.bindValue(":photo", *ex_photoName);

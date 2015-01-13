@@ -16,7 +16,6 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
      m_typeResident = new QTreeView;
          ex_typeModel = new QStandardItemModel;
 
-
          updateTypeResidentTree();
          
          ex_typeModel->setHorizontalHeaderLabels(QStringList("Type Resident"));
@@ -285,31 +284,39 @@ void ResidentPage::showEditTypeResiOnEditAction() {
 void ResidentPage::onItemChanged(QStandardItem *item) {
 
     Qt::CheckState state = item->checkState();
+    //QStandardItemModel *new_model = new QStandardItemModel(this);
     if(state == Qt::Checked) {
         int trid = item->accessibleText().toInt(); 
 
      QSqlQuery query;
      query.prepare("SELECT resident_id, resident_nom, resident_prenom, resident_photo_name FROM resident WHERE type_resident_id = :trid");
          query.bindValue(":trid", trid);
-         if(query.lastError().isValid())
-             QMessageBox::critical(this, "Error", query.lastError().text());
+         if(!query.exec())
+             QMessageBox::critical(this, "Huston, we got a problem... :)", query.lastError().text());
          else {
              QSqlRecord results = query.record();
+             delete ex_nomModel;
+             ex_nomModel = new QStandardItemModel(this);
+                 ex_nomModel->setHorizontalHeaderLabels(QStringList("Nom Resident"));
              if(!results.isEmpty()) {
                  while(query.next()) {
                      QString rphoto = query.value(results.indexOf("resident_photo_name")).toString(); 
                      QString rn = query.value(results.indexOf("resident_nom")).toString();
                              rn += " " + query.value(results.indexOf("resident_prenom")).toString();
                      QStandardItem *ni = new QStandardItem(rn);
-                     ni->setAccessibleText(query.value(results.indexOf("resident_id")).toString());
+                     QString tid = QString::number(query.value(results.indexOf("resident_id")).toInt());
+                     ni->setAccessibleText(tid);
                      ni->setEditable(false);
                      if(!rphoto.isNull() && !rphoto.isEmpty())
                          ni->setIcon(QIcon(rphoto));
                      else
                          ni->setIcon(QIcon("img/user-icon.png"));
+
                      ex_nomModel->appendRow(ni);
+
                 }
              }
+             ex_proxyModel->setSourceModel(ex_nomModel);
         }
 
 
