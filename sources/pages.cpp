@@ -11,6 +11,8 @@ QStandardItemModel *ex_typeModel;
 QList<QStandardItem *> *ex_items_type;
 
 ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
+     ex_items_type = new QList<QStandardItem *>;
+
      QSqlDatabase db = DBFactory::getConnection(this); 
      QSplitter *splitter = new QSplitter(this);
 
@@ -134,7 +136,7 @@ void ResidentPage::showEditOnEditAction() {
         int intret = editResident->exec();
         if (intret == QDialog::Accepted) {
             editResident->saveEditedResident(pro_index, rid);
-            //showResidentInfos(m_residentName->currentIndex());
+            //showResidentInfos(pro_index);
         }else if(intret == QDialog::Rejected) {
             if(!ex_photoName->isNull() && !ex_photoName->isEmpty()) {
                 QFile photoFile(*ex_photoName, this);
@@ -195,6 +197,7 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
         if (intret == QDialog::Accepted) {
             editResident->saveEditedResident(pro_index, rid);
             //showResidentInfos(m_residentName->currentIndex());
+
         }else if(intret == QDialog::Rejected) {
             if(!ex_photoName->isNull() && !ex_photoName->isEmpty()) {
                 QFile photoFile(*ex_photoName, this);
@@ -281,21 +284,41 @@ void ResidentPage::showEditTypeResiOnEditAction() {
 
 
 void ResidentPage::onItemChanged(QStandardItem *item) {
-    int itemCount;
+
+    QList<int> listId;
     for(int i = 0; i < ex_items_type->size(); i++) {
-        itemCount++;
         QStandardItem *titem; 
-        titem = ex_items_type[i];
+        titem = ex_items_type->at(i);
+        Qt::CheckState tstate = titem->checkState();
+        if(tstate == Qt::Unchecked) {
+            int id = titem->accessibleText().toInt();
+            listId.append(id);
+        }
     }
-    QMessageBox::information(this, "Infos", QString::number(itemCount));
+    
+    QString qs = "";
+    int oInt;
+    if(listId.size() == 1) {
+        oInt = listId.first();
+        qs += "!= " + QString::number(oInt);
+    } else if(listId.size() > 1){
+        qs = "";
+        for(int c = 0; c < listId.size(); c++) {
+            if(c + 1 == listId.size()) 
+                qs += "!= " + QString::number(listId.at(c));
+            else
+                qs += "!= " + QString::number(listId.at(c)) + " AND type_resident_id ";
 
-    Qt::CheckState state = item->checkState();
-    if(state == Qt::Unchecked) {
-        int trid = item->accessibleText().toInt(); 
+        }
+    }
 
-     QSqlQuery query;
-     query.prepare("SELECT resident_id, resident_nom, resident_prenom, resident_photo_name FROM resident WHERE type_resident_id != :trid");
-         query.bindValue(":trid", trid);
+
+    //Qt::CheckState state = item->checkState();
+    //if(state == Qt::Unchecked) {
+       // int trid = item->accessibleText().toInt(); 
+
+     QSqlQuery query("SELECT resident_id, resident_nom, resident_prenom, resident_photo_name FROM resident WHERE type_resident_id " + qs);
+         //query.bindValue(":trid", trid);
          if(!query.exec())
              QMessageBox::critical(this, "Huston, we got a problem... :)", query.lastError().text());
          else {
@@ -326,7 +349,7 @@ void ResidentPage::onItemChanged(QStandardItem *item) {
         }
 
 
-    }
+    //}
 
 
 
@@ -606,9 +629,6 @@ void ResidentPage::showResidentInfos(const QModelIndex &pindex) {
 
 void ResidentPage::updateResidentTree() {
              
-    /*QModelIndex type_index = m_typeResident->currentIndex();
-    QStandardItem *item = ex_typeModel->itemFromIndex(type_index);
-    int trid = item->accessibleText().toInt();*/
 
          QSqlQuery query("SELECT resident_id, resident_nom, resident_prenom, resident_photo_name FROM resident");
          if(query.lastError().isValid())
@@ -641,7 +661,7 @@ void ResidentPage::updateResidentTree() {
 
 void ResidentPage::updateTypeResidentTree() {
  
-         ex_items_type = new QList<QStandardItem *>;
+         //ex_items_type = new QList<QStandardItem *>;
         
          QSqlQuery query("SELECT type_resident_id, type_resident_name FROM type_resident");
          if(query.lastError().isValid())

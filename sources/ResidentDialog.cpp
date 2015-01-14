@@ -299,6 +299,7 @@ ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDi
         m_typeResident->addItem("");
     }*/
 
+
     QFormLayout *listForm = new QFormLayout;
     listForm->addRow("Groupe: ", m_typeResident);
 
