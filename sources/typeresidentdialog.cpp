@@ -106,6 +106,7 @@ void TypeResidentDialog::saveNewTypeResident() {
                             nii->setIcon(QIcon("img/resource-group.png"));
 
                             ex_typeModel->appendRow(nii);
+                            ex_items_type->append(nii);
                         }
                     }
                 }

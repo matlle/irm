@@ -8,6 +8,7 @@
 QSortFilterProxyModel *ex_proxyModel;
 QStandardItemModel *ex_nomModel;
 QStandardItemModel *ex_typeModel;
+QList<QStandardItem *> *ex_items_type;
 
 ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
      QSqlDatabase db = DBFactory::getConnection(this); 
@@ -47,9 +48,7 @@ ResidentPage::ResidentPage(QWidget *parent): QWidget(parent) {
          QObject::connect(actionEditResi, SIGNAL(triggered()), this, SLOT(showEditOnEditAction()));
          QObject::connect(actionDelTypeResi, SIGNAL(triggered()), this, SLOT(removeTypeResident()));
          QObject::connect(actionEditTypeResi, SIGNAL(triggered()), this, SLOT(showEditTypeResiOnEditAction()));
-
          QObject::connect(ex_typeModel,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
-
          QObject::connect(m_typeResident, SIGNAL(activated(QModelIndex)), this, SLOT(showEditTypeResident(QModelIndex)));
          QObject::connect(m_residentName, SIGNAL(activated(QModelIndex)), this, SLOT(showEdit(QModelIndex)));
          QObject::connect(m_residentName, SIGNAL(clicked(QModelIndex)), this, SLOT(showResidentInfos(QModelIndex)));
@@ -282,14 +281,20 @@ void ResidentPage::showEditTypeResiOnEditAction() {
 
 
 void ResidentPage::onItemChanged(QStandardItem *item) {
+    int itemCount;
+    for(int i = 0; i < ex_items_type->size(); i++) {
+        itemCount++;
+        QStandardItem *titem; 
+        titem = ex_items_type[i];
+    }
+    QMessageBox::information(this, "Infos", QString::number(itemCount));
 
     Qt::CheckState state = item->checkState();
-    //QStandardItemModel *new_model = new QStandardItemModel(this);
-    if(state == Qt::Checked) {
+    if(state == Qt::Unchecked) {
         int trid = item->accessibleText().toInt(); 
 
      QSqlQuery query;
-     query.prepare("SELECT resident_id, resident_nom, resident_prenom, resident_photo_name FROM resident WHERE type_resident_id = :trid");
+     query.prepare("SELECT resident_id, resident_nom, resident_prenom, resident_photo_name FROM resident WHERE type_resident_id != :trid");
          query.bindValue(":trid", trid);
          if(!query.exec())
              QMessageBox::critical(this, "Huston, we got a problem... :)", query.lastError().text());
@@ -300,6 +305,7 @@ void ResidentPage::onItemChanged(QStandardItem *item) {
                  ex_nomModel->setHorizontalHeaderLabels(QStringList("Nom Resident"));
              if(!results.isEmpty()) {
                  while(query.next()) {
+
                      QString rphoto = query.value(results.indexOf("resident_photo_name")).toString(); 
                      QString rn = query.value(results.indexOf("resident_nom")).toString();
                              rn += " " + query.value(results.indexOf("resident_prenom")).toString();
@@ -599,6 +605,10 @@ void ResidentPage::showResidentInfos(const QModelIndex &pindex) {
 
 
 void ResidentPage::updateResidentTree() {
+             
+    /*QModelIndex type_index = m_typeResident->currentIndex();
+    QStandardItem *item = ex_typeModel->itemFromIndex(type_index);
+    int trid = item->accessibleText().toInt();*/
 
          QSqlQuery query("SELECT resident_id, resident_nom, resident_prenom, resident_photo_name FROM resident");
          if(query.lastError().isValid())
@@ -630,7 +640,9 @@ void ResidentPage::updateResidentTree() {
 
 
 void ResidentPage::updateTypeResidentTree() {
-
+ 
+         ex_items_type = new QList<QStandardItem *>;
+        
          QSqlQuery query("SELECT type_resident_id, type_resident_name FROM type_resident");
          if(query.lastError().isValid())
              QMessageBox::critical(this, "Error", query.lastError().text());
@@ -643,8 +655,11 @@ void ResidentPage::updateTypeResidentTree() {
                      ni->setAccessibleText(query.value(results.indexOf("type_resident_id")).toString());
                      ni->setEditable(false);
                      ni->setCheckable(true);
+                     ni->setCheckState(Qt::Checked);
                      ni->setIcon(QIcon("img/resource-group.png"));
                      ex_typeModel->appendRow(ni);
+                     
+                     ex_items_type->append(ni);
                 }
              }
         }

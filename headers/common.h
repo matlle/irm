@@ -14,3 +14,5 @@ extern QAction *actionDelResi;
 extern QAction *actionEditResi;
 extern QAction *actionDelTypeResi;
 extern QAction *actionEditTypeResi;
+
+extern QList<QStandardItem *>  *ex_items_type;
