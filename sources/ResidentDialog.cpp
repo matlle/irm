@@ -822,17 +822,17 @@ QModelIndex ResidentDialog::saveEditedResident(const QModelIndex &ind, int rid) 
                             ex_nomModel->removeRow(oitemRow);
                             ex_nomModel->appendRow(uii);
 
-                            //nIndex = ex_nomModel->indexFromItem(uii);
-                            nIndex = uii->index();
+                            QModelIndex itt = ex_nomModel->indexFromItem(uii);
+                            nIndex = ex_proxyModel->mapFromSource(itt);
                         }
 
                     }
                 }
              *ex_photoName = ""; 
+             return nIndex;
 
             }
            
-            return nIndex;
    
   } else {
       QMessageBox::critical(this, "Erreur - Le resident n'a pu être modifié", "Vous devez saisir au moins le nom du resident");
