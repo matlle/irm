@@ -13,6 +13,7 @@
 
 #include <QtGui>
 #include <QtSql>
+#include <QModelIndex>
 
 class ResidentDialog : public QDialog { 
     Q_OBJECT
@@ -20,7 +21,7 @@ class ResidentDialog : public QDialog {
       ResidentDialog(QWidget *parent);
       ResidentDialog(QVariantList list, QWidget *parent);
       void saveNewResident();
-      void saveEditedResident(const QModelIndex&, int);
+      QModelIndex saveEditedResident(const QModelIndex&, int);
       void remove_old_photo(int);
       void updateTypeResidentComboBox();
 

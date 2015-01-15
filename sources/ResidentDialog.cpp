@@ -274,7 +274,7 @@ ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDi
     m_typeResident = new QComboBox(this);
         updateTypeResidentComboBox();
 
-    /*if(!listInfos[16].isNull() && !listInfos[16].toInt() == 0 && !listInfos[16].toString().isEmpty()) {
+    if(!listInfos[16].isNull() && !listInfos[16].toInt() == 0 && !listInfos[16].toString().isEmpty()) {
 
              int etrid = listInfos[16].toInt();
              QString trname;
@@ -293,11 +293,11 @@ ResidentDialog::ResidentDialog(QVariantList listInfos, QWidget *parent = 0): QDi
 
               }
 
-        m_typeResident->addItem(trname);
+        int myInt = m_typeResident->findText(trname);
+        m_typeResident->setCurrentIndex(myInt);
 
-    } else {
-        m_typeResident->addItem("");
-    }*/
+    } 
+     
 
 
     QFormLayout *listForm = new QFormLayout;
@@ -725,7 +725,7 @@ void ResidentDialog::remove_old_photo(int reid) {
 
 
 
-void ResidentDialog::saveEditedResident(const QModelIndex &ind, int rid) {
+QModelIndex ResidentDialog::saveEditedResident(const QModelIndex &ind, int rid) {
 
       if(!m_nom->text().isEmpty()) {
 
@@ -787,13 +787,11 @@ void ResidentDialog::saveEditedResident(const QModelIndex &ind, int rid) {
             else if(!m_photoname->isNull() && !m_photoname->isEmpty())
                 queryNr.bindValue(":photo", *m_photoname);
 
-
+            QModelIndex nIndex;
             if(!queryNr.exec()) 
                 QMessageBox::critical(this, "Huston, we got a error :)", queryNr.lastError().text());
             else {
-                
-                 
-                //int lid = queryNr.lastInsertId().toInt();
+                       
                 
                 QSqlQuery queryUi;
                 queryUi.prepare("SELECT resident_nom, resident_prenom, resident_photo_name FROM resident WHERE resident_id = :id");
@@ -823,7 +821,9 @@ void ResidentDialog::saveEditedResident(const QModelIndex &ind, int rid) {
             
                             ex_nomModel->removeRow(oitemRow);
                             ex_nomModel->appendRow(uii);
-                            //ex_nomModel->insertRow(0, uii);
+
+                            //nIndex = ex_nomModel->indexFromItem(uii);
+                            nIndex = uii->index();
                         }
 
                     }
@@ -831,7 +831,8 @@ void ResidentDialog::saveEditedResident(const QModelIndex &ind, int rid) {
              *ex_photoName = ""; 
 
             }
-
+           
+            return nIndex;
    
   } else {
       QMessageBox::critical(this, "Erreur - Le resident n'a pu être modifié", "Vous devez saisir au moins le nom du resident");

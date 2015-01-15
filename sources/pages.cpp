@@ -195,8 +195,13 @@ void ResidentPage::showEdit(const QModelIndex &pro_index) {
         ResidentDialog *editResident = new ResidentDialog(v, this);
         int intret = editResident->exec();
         if (intret == QDialog::Accepted) {
-            editResident->saveEditedResident(pro_index, rid);
-            //showResidentInfos(m_residentName->currentIndex());
+            QModelIndex ti = editResident->saveEditedResident(pro_index, rid);
+            if(ti.isValid())
+                QMessageBox::information(this, "Infos", "Valid!");
+            else
+                QMessageBox::information(this, "Infos", "Not valid!");
+            //m_residentName->scrollTo(ti);
+            showResidentInfos(ti);
 
         }else if(intret == QDialog::Rejected) {
             if(!ex_photoName->isNull() && !ex_photoName->isEmpty()) {
