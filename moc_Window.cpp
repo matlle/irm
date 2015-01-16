@@ -22,7 +22,7 @@ static const uint qt_meta_data_Window[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       4,   14, // methods
+       5,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -34,6 +34,7 @@ static const uint qt_meta_data_Window[] = {
       71,    7,    7,    7, 0x0a,
       85,    7,    7,    7, 0x0a,
      103,    7,    7,    7, 0x0a,
+     117,    7,    7,    7, 0x0a,
 
        0        // eod
 };
@@ -42,7 +43,7 @@ static const char qt_meta_stringdata_Window[] = {
     "Window\0\0current,previous\0"
     "changePage(QListWidgetItem*,QListWidgetItem*)\0"
     "newResident()\0newTypeResident()\0"
-    "aboutIrm()\0"
+    "newBatiment()\0aboutIrm()\0"
 };
 
 void Window::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -54,7 +55,8 @@ void Window::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         case 0: _t->changePage((*reinterpret_cast< QListWidgetItem*(*)>(_a[1])),(*reinterpret_cast< QListWidgetItem*(*)>(_a[2]))); break;
         case 1: _t->newResident(); break;
         case 2: _t->newTypeResident(); break;
-        case 3: _t->aboutIrm(); break;
+        case 3: _t->newBatiment(); break;
+        case 4: _t->aboutIrm(); break;
         default: ;
         }
     }
@@ -92,9 +94,9 @@ int Window::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 5;
     }
     return _id;
 }

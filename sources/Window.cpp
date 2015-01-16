@@ -12,6 +12,7 @@
 #include "pages.h"
 #include "ResidentDialog.h"
 #include "typeresidentdialog.h"
+#include "batdialog.h"
 #include "common.h"
 
 QAction *actionNewResident;
@@ -162,6 +163,7 @@ void Window::initMainWindow() {
     // Events
     QObject::connect(actionNewResident, SIGNAL(triggered()), this, SLOT(newResident()));
     QObject::connect(actionNewTypeResident, SIGNAL(triggered()), this, SLOT(newTypeResident()));
+    QObject::connect(actionNewBatiment, SIGNAL(triggered()), this, SLOT(newBatiment()));
     QObject::connect(actionAboutIrm, SIGNAL(triggered()), this, SLOT(aboutIrm()));
     QObject::connect(searchField, SIGNAL(textEdited(QString)), ex_proxyModel, SLOT(setFilterFixedString(QString)));
     QObject::connect(actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
@@ -232,6 +234,16 @@ void Window::newTypeResident() {
     int intAct = type_resident->exec();
     if (intAct == QDialog::Accepted) {
        type_resident->saveNewTypeResident();
+    } 
+
+}
+
+
+void Window::newBatiment() {
+    BatDialog *bat = new BatDialog(this);
+    int intAct = bat->exec();
+    if (intAct == QDialog::Accepted) {
+       bat->saveNewBat();
     } 
 
 }

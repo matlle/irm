@@ -12,7 +12,7 @@ QT += sql
 
 # Input
 HEADERS += headers/Window.h pages.h DBFactory.h ResidentDialog.h common.h \
-                   photopreview.h typeresidentdialog.h
+                   photopreview.h typeresidentdialog.h batdialog.h
 SOURCES += sources/main.cpp Window.cpp pages.cpp DBFactory.cpp ResidentDialog.cpp \
-                   photopreview.cpp typeresidentdialog.cpp
+                   photopreview.cpp typeresidentdialog.cpp batdialog.cpp
 RESSOURCES += irm.qrc

@@ -32,6 +32,7 @@ class Window : public QMainWindow {
         void changePage(QListWidgetItem *current, QListWidgetItem *previous);
         void newResident();
         void newTypeResident();
+        void newBatiment();
         void aboutIrm();
     
     protected:
