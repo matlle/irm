@@ -135,8 +135,14 @@ void ResidentPage::showEditOnEditAction() {
         ResidentDialog *editResident = new ResidentDialog(v, this);
         int intret = editResident->exec();
         if (intret == QDialog::Accepted) {
-            editResident->saveEditedResident(pro_index, rid);
-            //showResidentInfos(pro_index);
+            QModelIndex ti = editResident->saveEditedResident(pro_index, rid);
+
+            if(ti.isValid()) {
+                m_residentName->setCurrentIndex(ti);
+                showResidentInfos(ti);
+            }
+
+
         }else if(intret == QDialog::Rejected) {
             if(!ex_photoName->isNull() && !ex_photoName->isEmpty()) {
                 QFile photoFile(*ex_photoName, this);
@@ -695,46 +701,85 @@ void ResidentPage::updateTypeResidentTree() {
 
 
 
-UpdatePage::UpdatePage(QWidget *parent)
-     : QWidget(parent)
+BatChaPage::BatChaPage(QWidget *parent) : QWidget(parent)
  {
-     QGroupBox *updateGroup = new QGroupBox(tr("Package selection"));
-     QCheckBox *systemCheckBox = new QCheckBox(tr("Update system"));
-     QCheckBox *appsCheckBox = new QCheckBox(tr("Update applications"));
-     QCheckBox *docsCheckBox = new QCheckBox(tr("Update documentation"));
 
-     QGroupBox *packageGroup = new QGroupBox(tr("Existing packages"));
+      //QWidget *page2 = new QWidget;
+       QLabel *labelSelectBat = new QLabel(this);
+               labelSelectBat->setText(QString("Batiment: "));
+       QComboBox *selected_bat = new QComboBox(this);
+           selected_bat->addItem("Batiment A");
+           selected_bat->addItem("Batiment B");
+           selected_bat->addItem("Batiment C");
+           selected_bat->addItem("Batiment D");
+       QHBoxLayout *selectBatLayout = new QHBoxLayout;
+           selectBatLayout->addWidget(labelSelectBat);
+           selectBatLayout->addWidget(selected_bat);
+           selectBatLayout->addStretch(100);
 
-     QListWidget *packageList = new QListWidget;
-     QListWidgetItem *qtItem = new QListWidgetItem(packageList);
-     qtItem->setText(tr("Qt"));
-     QListWidgetItem *qsaItem = new QListWidgetItem(packageList);
-     qsaItem->setText(tr("QSA"));
-     QListWidgetItem *teamBuilderItem = new QListWidgetItem(packageList);
-     teamBuilderItem->setText(tr("Teambuilder"));
+       QGridLayout *rooms_in_bat_layout = new QGridLayout;
+           QPushButton *room1 = new QPushButton("Chambre 1");
+                     room1->setIcon(QIcon("img/bed.png"));
+                     room1->setIconSize(QSize(50, 70));
+           QPushButton *room2 = new QPushButton("Chambre 2");
+                     room2->setIcon(QIcon("img/bed.png"));
+                     room2->setIconSize(QSize(50, 70));
+           QPushButton *room3 = new QPushButton("Chambre 3");
+                     room3->setIcon(QIcon("img/bed.png"));
+                     room3->setIconSize(QSize(50, 70));
+           QPushButton *room4 = new QPushButton("Chambre 4");
+                     room4->setIcon(QIcon("img/bed.png"));
+                     room4->setIconSize(QSize(50, 70));
+           QPushButton *room5 = new QPushButton("Chambre 5");
+                     room5->setIcon(QIcon("img/bed.png"));
+                     room5->setIconSize(QSize(50, 70));
+                     room5->setStyleSheet("background-color: green;");
 
-     QPushButton *startUpdateButton = new QPushButton(tr("Start update"));
+          QPushButton *room6 = new QPushButton("Chambre 6");
+                     room6->setIcon(QIcon("img/bed.png"));
+                     room6->setIconSize(QSize(50, 70));
 
-     QVBoxLayout *updateLayout = new QVBoxLayout;
-     updateLayout->addWidget(systemCheckBox);
-     updateLayout->addWidget(appsCheckBox);
-     updateLayout->addWidget(docsCheckBox);
-     updateGroup->setLayout(updateLayout);
+          QPushButton *room7 = new QPushButton("Chambre 7");
+                     room7->setIcon(QIcon("img/bed.png"));
+                     room7->setIconSize(QSize(50, 70));
+                     room7->setStyleSheet("background-color: red;");
 
-     QVBoxLayout *packageLayout = new QVBoxLayout;
-     packageLayout->addWidget(packageList);
-     packageGroup->setLayout(packageLayout);
+          QPushButton *room8 = new QPushButton("chambre 8");
+                     room8->setIcon(QIcon("img/bed.png"));
+                     room8->setIconSize(QSize(50, 70));
 
-     QVBoxLayout *mainLayout = new QVBoxLayout;
-     mainLayout->addWidget(updateGroup);
-     mainLayout->addWidget(packageGroup);
-     mainLayout->addSpacing(12);
-     mainLayout->addWidget(startUpdateButton);
-     mainLayout->addStretch(1);
-     //setLayout(mainLayout);
- }
+          
+           rooms_in_bat_layout->addWidget(room1, 0, 0);
+           rooms_in_bat_layout->addWidget(room2, 0, 1);
+           rooms_in_bat_layout->addWidget(room3, 0, 2); 
+           rooms_in_bat_layout->addWidget(room4, 0, 3);
+           rooms_in_bat_layout->addWidget(room5, 0, 4);
+           rooms_in_bat_layout->addWidget(room6, 1, 0);
+           rooms_in_bat_layout->addWidget(room7, 1, 1);
+           rooms_in_bat_layout->addWidget(room8, 1, 2);
+           rooms_in_bat_layout->setAlignment(Qt::AlignTop);
+           //rooms_in_bat_layout->addStretch(100);
 
- QueryPage::QueryPage(QWidget *parent)
+       QVBoxLayout *mainLayoutPage2 = new QVBoxLayout;
+            mainLayoutPage2->addLayout(selectBatLayout);
+            mainLayoutPage2->addLayout(rooms_in_bat_layout);
+
+       setLayout(mainLayoutPage2);
+
+
+
+
+
+      }
+
+
+/* <========================= End BatChaPage =============================> */
+
+
+
+
+
+ EventsPage::EventsPage(QWidget *parent)
      : QWidget(parent)
  {
      QGroupBox *packagesGroup = new QGroupBox(tr("Look for packages"));

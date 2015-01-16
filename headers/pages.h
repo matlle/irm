@@ -40,17 +40,17 @@ class ResidentPage : public QWidget {
         
 };
 
-class QueryPage: public QWidget {
+class BatChaPage: public QWidget {
 
     public:
-        QueryPage(QWidget *parent = 0);
+        BatChaPage(QWidget *parent = 0);
 
 };
 
-class UpdatePage : public QWidget {
+class EventsPage : public QWidget {
 
     public:
-        UpdatePage(QWidget *parent = 0);
+        EventsPage(QWidget *parent = 0);
 };
 
 #endif

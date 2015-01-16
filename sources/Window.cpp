@@ -43,11 +43,11 @@ void Window::initMainWindow() {
     // Menu stuff
     QMenu *menuFile = menuBar()->addMenu("&Fichier");
         QMenu *newElement = menuFile->addMenu("&Nouveau");
-               actionNewResident = newElement->addAction("Nouveau resident");
-               actionNewTypeResident = newElement->addAction("Nouveau type resident");
+               actionNewResident = newElement->addAction("Resident");
+               actionNewTypeResident = newElement->addAction("Type resident");
             newElement->addSeparator();
-               actionNewBatiment = newElement->addAction("Nouveau batiment");
-               actionNewChambre = newElement->addAction("Nouvelle chambre");
+               actionNewBatiment = newElement->addAction("Batiment");
+               actionNewChambre = newElement->addAction("Chambre");
             // resident   
             actionDelResi = new QAction("Supprimer resident", this);
             actionDelResi->setIcon(QIcon("img/remove-user.png"));
@@ -114,6 +114,7 @@ void Window::initMainWindow() {
 
     // Toolbar stuff
     QToolBar *toolbar = addToolBar("IrmToolbar");
+        toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     QLineEdit *searchField = new QLineEdit(this);
               QString ss = "Rechercher";
               searchField->setPlaceholderText(ss);
@@ -137,8 +138,8 @@ void Window::initMainWindow() {
 
     m_pagesWidget = new QStackedWidget;
     m_pagesWidget->addWidget(new ResidentPage);
-    m_pagesWidget->addWidget(new UpdatePage);
-    m_pagesWidget->addWidget(new QueryPage);
+    m_pagesWidget->addWidget(new BatChaPage);
+    m_pagesWidget->addWidget(new EventsPage);
     
 
     createIcons();
@@ -173,21 +174,21 @@ void Window::createIcons() {
 
     QListWidgetItem *firstItem = new QListWidgetItem(m_contentsWidget);
     firstItem->setIcon(QIcon("img/residents.png"));
-    firstItem->setText("Resident");
+    firstItem->setText("Residents");
     firstItem->setTextAlignment(Qt::AlignHCenter);
     firstItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
 
     QListWidgetItem *secondItem = new QListWidgetItem(m_contentsWidget);
     secondItem->setIcon(QIcon("img/bat.png"));
-    secondItem->setText("Batiment\n et chambre");
+    secondItem->setText("Batiments\n et chambres");
     secondItem->setTextAlignment(Qt::AlignHCenter);
     secondItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
     
     QListWidgetItem *thirdItem = new QListWidgetItem(m_contentsWidget);
     thirdItem->setIcon(QIcon("img/blockdevice.png"));
-    thirdItem->setText("Evenement");
+    thirdItem->setText("Evenements");
     thirdItem->setTextAlignment(Qt::AlignHCenter);
     thirdItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
