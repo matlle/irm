@@ -17,7 +17,7 @@
 
 QAction *actionNewResident;
 QAction *actionNewTypeResident;
-QAction *actionNewChambre;
+//QAction *actionNewChambre;
 QAction *actionNewBatiment;
 QAction *actionDelResi;
 QAction *actionEditResi;
@@ -47,8 +47,8 @@ void Window::initMainWindow() {
                actionNewResident = newElement->addAction("Resident");
                actionNewTypeResident = newElement->addAction("Type resident");
             newElement->addSeparator();
-               actionNewBatiment = newElement->addAction("Batiment");
-               actionNewChambre = newElement->addAction("Chambre");
+               actionNewBatiment = newElement->addAction("Batiments/Chambres");
+               //actionNewChambre = newElement->addAction("Chambre");
             // resident   
             actionDelResi = new QAction("Supprimer resident", this);
             actionDelResi->setIcon(QIcon("img/remove-user.png"));
@@ -81,12 +81,13 @@ void Window::initMainWindow() {
         actionExit->setShortcut(QKeySequence("Ctrl+Q"));
         actionNewResident->setShortcut(QKeySequence("Ctrl+N"));
         actionNewTypeResident->setShortcut(QKeySequence("Ctrl+T"));
+        actionNewBatiment->setShortcut(QKeySequence("Ctrl+B"));
 
         // set icons
         actionNewResident->setIcon(QIcon("img/add_user.png"));
         actionNewTypeResident->setIcon(QIcon("img/add_user_group.png"));
         actionNewBatiment->setIcon(QIcon("img/bat.png"));
-        actionNewChambre->setIcon(QIcon("img/bed.png"));
+        //actionNewChambre->setIcon(QIcon("img/bed.png"));
         actionPrint->setIcon(QIcon("img/filequickprint.png"));
         actionPrintPreview->setIcon(QIcon("img/fileprint.png"));
         actionDisconnect->setIcon(QIcon("img/exit.png"));
@@ -122,7 +123,7 @@ void Window::initMainWindow() {
     toolbar->addAction(actionNewResident);
     toolbar->addAction(actionNewTypeResident);
     toolbar->addAction(actionNewBatiment);
-    toolbar->addAction(actionNewChambre);
+    //toolbar->addAction(actionNewChambre);
     toolbar->addSeparator();
     toolbar->addWidget(searchField);
 
@@ -243,7 +244,7 @@ void Window::newBatiment() {
     BatDialog *bat = new BatDialog(this);
     int intAct = bat->exec();
     if (intAct == QDialog::Accepted) {
-       bat->saveNewBat();
+       //bat->saveNewBat();
     } 
 
 }

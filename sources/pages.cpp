@@ -399,7 +399,7 @@ void ResidentPage::contextMenuEvent(QContextMenuEvent *event) {
     ResMenu.addAction(actionNewResident);
     ResMenu.addAction(actionNewTypeResident);
     ResMenu.addSeparator();
-    ResMenu.addAction(actionNewChambre);
+    //ResMenu.addAction(actionNewChambre);
     ResMenu.addAction(actionNewBatiment);
     ResMenu.addSeparator();
     ResMenu.addAction(actionEditResi);

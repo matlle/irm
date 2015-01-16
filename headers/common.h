@@ -8,7 +8,7 @@ extern QString *ex_photoName;
 
 extern QAction *actionNewResident;
 extern QAction *actionNewTypeResident;
-extern QAction *actionNewChambre;
+//extern QAction *actionNewChambre;
 extern QAction *actionNewBatiment;
 extern QAction *actionDelResi;
 extern QAction *actionEditResi;
