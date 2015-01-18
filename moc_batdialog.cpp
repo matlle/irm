@@ -22,7 +22,7 @@ static const uint qt_meta_data_BatDialog[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       1,   14, // methods
+       4,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -31,12 +31,18 @@ static const uint qt_meta_data_BatDialog[] = {
 
  // slots: signature, parameters, type, tag, flags
       11,   10,   10,   10, 0x0a,
+      24,   10,   10,   10, 0x0a,
+      51,   10,   10,   10, 0x0a,
+      77,   10,   10,   10, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_BatDialog[] = {
     "BatDialog\0\0saveNewBat()\0"
+    "saveEditedBat(QModelIndex)\0"
+    "saveEditedBatOnBtnClick()\0"
+    "onItemChanged(QModelIndex&)\0"
 };
 
 void BatDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -46,10 +52,12 @@ void BatDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         BatDialog *_t = static_cast<BatDialog *>(_o);
         switch (_id) {
         case 0: _t->saveNewBat(); break;
+        case 1: _t->saveEditedBat((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
+        case 2: _t->saveEditedBatOnBtnClick(); break;
+        case 3: _t->onItemChanged((*reinterpret_cast< QModelIndex(*)>(_a[1]))); break;
         default: ;
         }
     }
-    Q_UNUSED(_a);
 }
 
 const QMetaObjectExtraData BatDialog::staticMetaObjectExtraData = {
@@ -84,9 +92,9 @@ int BatDialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 4)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 4;
     }
     return _id;
 }

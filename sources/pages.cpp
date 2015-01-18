@@ -640,7 +640,7 @@ void ResidentPage::updateResidentTree() {
              
 
          QSqlQuery query("SELECT resident_id, resident_nom, resident_prenom, resident_photo_name FROM resident");
-         if(query.lastError().isValid())
+         if(!query.exec())
              QMessageBox::critical(this, "Error", query.lastError().text());
          else {
              QSqlRecord results = query.record();

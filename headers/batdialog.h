@@ -21,11 +21,13 @@ class BatDialog : public QDialog {
     public:
       BatDialog(QWidget *parent);
       //BatDialog(QVariantList list, QWidget *parent);
-      void saveEditedBat(const QModelIndex&, int);
       void updateBatTree();
 
     public slots:
       void saveNewBat();
+      void saveEditedBat(const QModelIndex&);
+      void saveEditedBatOnBtnClick();
+      void onItemChanged(QModelIndex&);
 
     protected:
       QLineEdit *m_name;
@@ -35,7 +37,6 @@ class BatDialog : public QDialog {
 
       QPushButton *m_newBat;
       QPushButton *m_newChamb;
-      QPushButton *m_editEle;
       QPushButton *m_removeEle;
       QPushButton *m_okBtn;
       QPushButton *m_cancelBtn;

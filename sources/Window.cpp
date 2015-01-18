@@ -34,7 +34,7 @@ Window::Window() {
 void Window::initMainWindow() {
 
     this->setStyleSheet("QListWidget#m_contentsWidget {background-color: #ccc;}");
-    //this->setStyleSheet("background-color: ;");
+    //this->setStyleSheet("background-color: #EFB939;");
     
     setWindowTitle("Istcjf Residence Management (IRM)");
     setWindowIcon(QIcon("img/logo.png"));

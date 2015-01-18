@@ -23,17 +23,16 @@ BatDialog::BatDialog(QWidget *parent = 0): QDialog(parent) {
                  m_newBat->setIcon(QIcon("img/bat.png"));
     m_newChamb = new QPushButton("Nouvelle Chambre");
                  m_newChamb->setIcon(QIcon("img/bed.png"));
-    m_editEle = new QPushButton("Modifier");
-                 m_editEle->setIcon(QIcon("img/edit.png"));
     m_removeEle = new QPushButton("Supprimer");
                  m_removeEle->setIcon(QIcon("img/button_cancel.png"));
+                 m_removeEle->setEnabled(false);
     QVBoxLayout *actionBtnLayout = new QVBoxLayout;
         actionBtnLayout->addWidget(m_newBat);
         actionBtnLayout->addWidget(m_newChamb);
-        actionBtnLayout->addWidget(m_editEle);
         actionBtnLayout->addWidget(m_removeEle);
         actionBtnLayout->addStretch(60);
 
+        
 
     m_okBtn = new QPushButton("Ok");
         m_okBtn->setIcon(QIcon("img/apply.png"));
@@ -52,13 +51,14 @@ BatDialog::BatDialog(QWidget *parent = 0): QDialog(parent) {
         mainLayout->addLayout(listLayout);
         mainLayout->addLayout(btnLayout);
     
-    resize(400, 500);
+    resize(600, 500);
     setWindowTitle("Batiments/Chambres - IRM");
     setLayout(mainLayout); 
 
 
     QObject::connect(m_newBat, SIGNAL(clicked()), this, SLOT(saveNewBat()));
-    QObject::connect(m_okBtn, SIGNAL(clicked()), this, SLOT(accept()));
+    QObject::connect(m_batTree, SIGNAL(activated(QModelIndex)), this, SLOT(saveEditedBat(QModelIndex)));
+    QObject::connect(m_batTree, SIGNAL(entered(QModelIndex)), this, SLOT(onItemChanged(QModelIndex)));
     QObject::connect(m_okBtn, SIGNAL(clicked()), this, SLOT(accept()));
 
 }
@@ -107,72 +107,209 @@ void BatDialog::saveNewBat() {
      return;
  }
 
-      
-}
 
-
-void BatDialog::saveEditedBat(const QModelIndex &index, int trid) {
-  
-      
-      /*if(!m_name->text().isEmpty()) {
-
-          
-      QSqlQuery queryNr;
-      queryNr.prepare("UPDATE type_resident \
-                       SET type_resident_name = :name \
-                       WHERE type_resident_id = :trid");
+    QSqlQuery query;
+      query.prepare("INSERT INTO batiment(batiment_name)" 
+                         "VALUES (:name)");
             
-            queryNr.bindValue(":trid", trid);
-            queryNr.bindValue(":name", m_name->text());
-            
-            if(!queryNr.exec()) 
-                QMessageBox::critical(this, "Huston, we got a error :)", queryNr.lastError().text());
+            query.bindValue(":name", batname);
+
+            if(!query.exec()) 
+                QMessageBox::critical(this, "Huston, we got a error :)", query.lastError().text());
             else {
                 
-                 
-                QSqlQuery queryUi;
-                queryUi.prepare("SELECT type_resident_id, type_resident_name FROM type_resident WHERE type_resident_id = :id");
-                queryUi.bindValue(":id", trid);
-                if(!queryUi.exec())
-                    QMessageBox::critical(this, "Huston, we got a error :)", queryUi.lastError().text());
+                int lid = query.lastInsertId().toInt();
+                
+                QSqlQuery queryNi;
+                queryNi.prepare("SELECT * FROM batiment WHERE batiment_id = :id");
+                queryNi.bindValue(":id", lid);
+                if(!queryNi.exec())
+                    QMessageBox::critical(this, "Huston, we got a error :)", queryNi.lastError().text());
                 else {
-                    QSqlRecord result = queryUi.record();
+                    QSqlRecord result = queryNi.record();
                     if(!result.isEmpty()) {
-                        while(queryUi.next()) {
-                            QString sui = queryUi.value(result.indexOf("type_resident_name")).toString();
-                            QStandardItem *uii = new QStandardItem(sui);
-                            QString ts = QString::number(trid);
-                            uii->setAccessibleText(ts);
-                            uii->setEditable(false);
-                            uii->setCheckable(true);
-                            uii->setIcon(QIcon("img/resource-group.png"));
-                            
+                        while(queryNi.next()) {
+                            QString sni = queryNi.value(result.indexOf("batiment_name")).toString();
+                            QStandardItem *nii = new QStandardItem(sni);
+                            QString ts = QString::number(lid);
+                            nii->setAccessibleText(ts);
+                            nii->setEditable(false);
+                            nii->setIcon(QIcon("img/bat.png"));
+                            //nii->appendRow(new QStandardItem("Chambre 125")); 
 
-                            QStandardItem *oitem = ex_typeModel->itemFromIndex(index);
-                            int oitemRow = oitem->row();
-            
-                            ex_typeModel->removeRow(oitemRow);
-                            ex_typeModel->appendRow(uii);
-                            //ex_nomModel->insertRow(0, uii);
+                            m_model->appendRow(nii);
                         }
-
                     }
                 }
 
-            }
-   
-  } else {
-      QMessageBox::critical(this, "Erreur - Le type de resident n'a pu être modifié", "Vous devez saisir le nom du type");
-  }*/
+
+      }
+      
+}
+
+
+void BatDialog::saveEditedBat(const QModelIndex &index) {
+  QStandardItem *item = m_model->itemFromIndex(index);
+  QString curName = item->text();
+  int bid = item->accessibleText().toInt();
+  bool ok = false;
+  QString batname = QInputDialog::getText(this, "Batiment",
+         "Nom du batiment:", QLineEdit::Normal, curName, &ok); 
+
+  if(ok && batname.isEmpty()) {
+      QMessageBox::critical(this, "Error - Impossible de modifier le batiment", "Vous devez entrer le nom du batiment");
+     return;
+  } else if(ok) {
+
+
+
+
+  QSqlQuery query;
+      query.prepare("UPDATE batiment \ 
+                    SET batiment_name = :name \
+                    WHERE batiment_id = :id");
+            
+            query.bindValue(":id", bid);
+            query.bindValue(":name", batname);
+
+            if(!query.exec()) 
+                QMessageBox::critical(this, "Huston, we got a error :)", query.lastError().text());
+            else {
+                
+                
+                QSqlQuery queryNi;
+                queryNi.prepare("SELECT * FROM batiment WHERE batiment_id = :id");
+                queryNi.bindValue(":id", bid);
+                if(!queryNi.exec())
+                    QMessageBox::critical(this, "Huston, we got a error :)", queryNi.lastError().text());
+                else {
+                    QSqlRecord result = queryNi.record();
+                    if(!result.isEmpty()) {
+                        while(queryNi.next()) {
+                            QString sni = queryNi.value(result.indexOf("batiment_name")).toString();
+                            QStandardItem *nii = new QStandardItem(sni);
+                            QString ts = QString::number(bid);
+                            nii->setAccessibleText(ts);
+                            nii->setEditable(false);
+                            nii->setIcon(QIcon("img/bat.png"));
+                            //nii->appendRow(new QStandardItem("Chambre 125")); 
+
+                            QStandardItem *oitem = m_model->itemFromIndex(index);
+                            int oitemRow = oitem->row();
+                            
+                            m_model->removeRow(oitemRow);
+                            m_model->appendRow(nii);
+                        }
+                    }
+                }
+
+
+      }
+
+
+  }
   
 }
+
+
+
+void BatDialog::saveEditedBatOnBtnClick() {
+  QModelIndex index = m_batTree->currentIndex();
+  QStandardItem *item = m_model->itemFromIndex(index);
+  QString curName = item->text();
+  int bid = item->accessibleText().toInt();
+  bool ok = false;
+  QString batname = QInputDialog::getText(this, "Batiment",
+         "Nom du batiment:", QLineEdit::Normal, curName, &ok); 
+
+  if(ok && batname.isEmpty()) {
+      QMessageBox::critical(this, "Error - Impossible de modifier le batiment", "Vous devez entrer le nom du batiment");
+     return;
+  }
+
+
+
+
+  QSqlQuery query;
+      query.prepare("UPDATE batiment \ 
+                    SET batiment_name = :name \
+                    WHERE batiment_id = :id");
+            
+            query.bindValue(":id", bid);
+            query.bindValue(":name", batname);
+
+            if(!query.exec()) 
+                QMessageBox::critical(this, "Huston, we got a error :)", query.lastError().text());
+            else {
+                
+                
+                QSqlQuery queryNi;
+                queryNi.prepare("SELECT * FROM batiment WHERE batiment_id = :id");
+                queryNi.bindValue(":id", bid);
+                if(!queryNi.exec())
+                    QMessageBox::critical(this, "Huston, we got a error :)", queryNi.lastError().text());
+                else {
+                    QSqlRecord result = queryNi.record();
+                    if(!result.isEmpty()) {
+                        while(queryNi.next()) {
+                            QString sni = queryNi.value(result.indexOf("batiment_name")).toString();
+                            QStandardItem *nii = new QStandardItem(sni);
+                            QString ts = QString::number(bid);
+                            nii->setAccessibleText(ts);
+                            nii->setEditable(false);
+                            nii->setIcon(QIcon("img/bat.png"));
+                            //nii->appendRow(new QStandardItem("Chambre 125")); 
+
+                            QStandardItem *oitem = m_model->itemFromIndex(index);
+                            int oitemRow = oitem->row();
+                            
+                            m_model->removeRow(oitemRow);
+                            m_model->appendRow(nii);
+                        }
+                    }
+                }
+
+
+      }
+
+
+  
+}
+
+
+
 
 
 void BatDialog::updateBatTree() {
 
     m_model = new QStandardItemModel;
         m_model->setHorizontalHeaderLabels(QStringList("Batiments/chambres"));
-    QStandardItem *item = new QStandardItem("Batiment 1");
+
+  
+                QSqlQuery query("SELECT * FROM batiment");
+                if(!query.exec())
+                    QMessageBox::critical(this, "Huston, we got a error :)", query.lastError().text());
+                else {
+                    QSqlRecord result = query.record();
+                    if(!result.isEmpty()) {
+                        while(query.next()) {
+                            QString sui = query.value(result.indexOf("batiment_name")).toString();
+                            int bid = query.value(result.indexOf("batiment_id")).toInt();
+                            QStandardItem *uii = new QStandardItem(sui);
+                            QString ts = QString::number(bid);
+                            uii->setAccessibleText(ts);
+                            uii->setEditable(false);
+                            uii->setIcon(QIcon("img/bat.png"));
+                            m_model->appendRow(uii);
+                        }
+
+                    }
+                }
+
+
+
+
+    /*QStandardItem *item = new QStandardItem("Batiment 1");
     m_model->appendRow(item);
     item->appendRow(new QStandardItem("Chambre Atible"));
 
@@ -184,7 +321,20 @@ void BatDialog::updateBatTree() {
 
     QStandardItem *item3 = new QStandardItem("Batiment 3");
     m_model->appendRow(item3);
-    item3->appendRow(new QStandardItem("Chambre Atible"));
+    item3->appendRow(new QStandardItem("Chambre Atible"));*/
+
+
+}
+
+
+
+void BatDialog::onItemChanged(QModelIndex &index) {
+
+    //if(!m_batTree->currentIndex().isValid()) {
+    //        m_removeEle->setEnabled(false);
+    //    } else {
+            m_removeEle->setEnabled(true);
+    //    }
 
 
 }
