@@ -57,8 +57,9 @@ BatDialog::BatDialog(QWidget *parent = 0): QDialog(parent) {
 
 
     QObject::connect(m_newBat, SIGNAL(clicked()), this, SLOT(saveNewBat()));
-    QObject::connect(m_batTree, SIGNAL(activated(QModelIndex)), this, SLOT(saveEditedBat(QModelIndex)));
-    QObject::connect(m_batTree, SIGNAL(entered(QModelIndex)), this, SLOT(onItemChanged(QModelIndex)));
+    QObject::connect(m_batTree, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(saveEditedBat(QModelIndex)));
+    QObject::connect(m_batTree, SIGNAL(clicked(QModelIndex)), this, SLOT(onItemChanged(QModelIndex)));
+    QObject::connect(m_removeEle, SIGNAL(clicked()), this, SLOT(removeBat()));
     QObject::connect(m_okBtn, SIGNAL(clicked()), this, SLOT(accept()));
 
 }
@@ -213,7 +214,7 @@ void BatDialog::saveEditedBat(const QModelIndex &index) {
 
 
 
-void BatDialog::saveEditedBatOnBtnClick() {
+/*void BatDialog::saveEditedBatOnBtnClick() {
   QModelIndex index = m_batTree->currentIndex();
   QStandardItem *item = m_model->itemFromIndex(index);
   QString curName = item->text();
@@ -274,7 +275,51 @@ void BatDialog::saveEditedBatOnBtnClick() {
 
 
   
+}*/
+
+
+
+
+bool BatDialog::isBatHasCha(int bid) {
+    QSqlQuery query;
+    query.prepare("SELECT COUNT(*) \
+                   FROM chambre WHERE batiment_id = :bid");
+    query.bindValue(":bid", bid);
+    
+    if(!query.exec()) {
+        QMessageBox::critical(this, "Huston, we got a error :)", query.lastError().text());
+        return false;
+    } else {
+        int nbRow = query.size();
+        if(nbRow == -1) return false;
+        else return true;
+    }
 }
+
+
+
+
+
+QStringList BatDialog::getAllChaByBatId(int bid) {
+    QStringList chaNames;
+    QSqlQuery query;
+    query.prepare("SELECT * \
+                   FROM chambre WHERE batiment_id = :bid");
+    query.bindValue(":bid", bid);
+    
+    if(!query.exec()) {
+        QMessageBox::critical(this, "Huston, we got a error :)", query.lastError().text());
+    } else {
+        QSqlRecord result = query.record();
+        if(!result.isEmpty()) {
+            while(query.next()) {
+                chaNames << query.value(result.indexOf("chambre_name")).toString();
+            }
+        }
+    }
+    return chaNames;
+}
+
 
 
 
@@ -294,8 +339,20 @@ void BatDialog::updateBatTree() {
                     if(!result.isEmpty()) {
                         while(query.next()) {
                             QString sui = query.value(result.indexOf("batiment_name")).toString();
+                            //QString chaName = query.value(result.indexOf("chambre_name")).toString();
                             int bid = query.value(result.indexOf("batiment_id")).toInt();
                             QStandardItem *uii = new QStandardItem(sui);
+                            //uii->appendRow(new QStandardItem(chaName));
+                            if(isBatHasCha(bid) == true) {
+                                QStringList roomsName = getAllChaByBatId(bid);
+                                for(int c = 0; c < roomsName.size(); c++) {
+                                    QStandardItem *ichild = new QStandardItem(roomsName.at(c));
+                                       ichild->setEditable(false);
+                                       ichild->setIcon(QIcon("img/bed.png"));
+                                    uii->appendRow(ichild);
+                                }
+
+                            }
                             QString ts = QString::number(bid);
                             uii->setAccessibleText(ts);
                             uii->setEditable(false);
@@ -328,7 +385,7 @@ void BatDialog::updateBatTree() {
 
 
 
-void BatDialog::onItemChanged(QModelIndex &index) {
+void BatDialog::onItemChanged(QModelIndex index) {
 
     //if(!m_batTree->currentIndex().isValid()) {
     //        m_removeEle->setEnabled(false);
@@ -336,5 +393,38 @@ void BatDialog::onItemChanged(QModelIndex &index) {
             m_removeEle->setEnabled(true);
     //    }
 
+
+}
+
+
+
+
+void BatDialog::removeBat() {
+     QModelIndex bat_index = m_batTree->currentIndex();
+     QStandardItem *item = m_model->itemFromIndex(bat_index);
+     QString batiment_name = item->text();
+
+    int retanswer = QMessageBox::question(this, "Supprimer Type Resident?", 
+            "Etes vous sûr de vouloir supprimer definitivement le batiment "
+           "<b> <br/>" + batiment_name + "</b> selectionné du logiciel?", 
+            QMessageBox::No | QMessageBox::Yes);
+
+    if(retanswer == QMessageBox::Yes) {
+        int bid = item->accessibleText().toInt();
+        int itemRow = item->row();
+
+       
+       // delete from db
+        QSqlQuery queryRd;
+            queryRd.prepare("DELETE FROM batiment WHERE batiment_id = :id");
+            queryRd.bindValue(":id", bid);
+        if(!queryRd.exec()) {
+            QMessageBox::critical(this, "Huston, we've a problem... :)", queryRd.lastError().text());
+            return;
+        }
+
+        m_model->removeRow(itemRow);
+
+     }
 
 }

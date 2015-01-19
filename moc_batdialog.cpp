@@ -33,7 +33,7 @@ static const uint qt_meta_data_BatDialog[] = {
       11,   10,   10,   10, 0x0a,
       24,   10,   10,   10, 0x0a,
       51,   10,   10,   10, 0x0a,
-      77,   10,   10,   10, 0x0a,
+      78,   10,   10,   10, 0x0a,
 
        0        // eod
 };
@@ -41,8 +41,7 @@ static const uint qt_meta_data_BatDialog[] = {
 static const char qt_meta_stringdata_BatDialog[] = {
     "BatDialog\0\0saveNewBat()\0"
     "saveEditedBat(QModelIndex)\0"
-    "saveEditedBatOnBtnClick()\0"
-    "onItemChanged(QModelIndex&)\0"
+    "onItemChanged(QModelIndex)\0removeBat()\0"
 };
 
 void BatDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -53,8 +52,8 @@ void BatDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         switch (_id) {
         case 0: _t->saveNewBat(); break;
         case 1: _t->saveEditedBat((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
-        case 2: _t->saveEditedBatOnBtnClick(); break;
-        case 3: _t->onItemChanged((*reinterpret_cast< QModelIndex(*)>(_a[1]))); break;
+        case 2: _t->onItemChanged((*reinterpret_cast< QModelIndex(*)>(_a[1]))); break;
+        case 3: _t->removeBat(); break;
         default: ;
         }
     }

@@ -22,12 +22,14 @@ class BatDialog : public QDialog {
       BatDialog(QWidget *parent);
       //BatDialog(QVariantList list, QWidget *parent);
       void updateBatTree();
+      bool isBatHasCha(int);
+      QStringList getAllChaByBatId(int);
 
     public slots:
       void saveNewBat();
       void saveEditedBat(const QModelIndex&);
-      void saveEditedBatOnBtnClick();
-      void onItemChanged(QModelIndex&);
+      void onItemChanged(QModelIndex);
+      void removeBat();
 
     protected:
       QLineEdit *m_name;
