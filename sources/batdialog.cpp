@@ -300,8 +300,8 @@ bool BatDialog::isBatHasCha(int bid) {
 
 
 
-QStringList BatDialog::getAllChaByBatId(int bid) {
-    QStringList chaNames;
+QMap<QString, QString> BatDialog::getAllChaByBatId(int bid) {
+    QMap<QString, QString> chaNames;
     QSqlQuery query;
     query.prepare("SELECT * \
                    FROM chambre WHERE batiment_id = :bid");
@@ -313,7 +313,8 @@ QStringList BatDialog::getAllChaByBatId(int bid) {
         QSqlRecord result = query.record();
         if(!result.isEmpty()) {
             while(query.next()) {
-                chaNames << query.value(result.indexOf("chambre_name")).toString();
+                chaNames["chambre_id"] << query.value(result.indexOf("chambre_id")).toString();
+                chaNames["chambre_name"] << query.value(result.indexOf("chambre_name")).toString();
             }
         }
     }
@@ -342,11 +343,11 @@ void BatDialog::updateBatTree() {
                             //QString chaName = query.value(result.indexOf("chambre_name")).toString();
                             int bid = query.value(result.indexOf("batiment_id")).toInt();
                             QStandardItem *uii = new QStandardItem(sui);
-                            //uii->appendRow(new QStandardItem(chaName));
                             if(isBatHasCha(bid) == true) {
-                                QStringList roomsName = getAllChaByBatId(bid);
+                                QMap<QString, QString> roomsName = getAllChaByBatId(bid);
                                 for(int c = 0; c < roomsName.size(); c++) {
-                                    QStandardItem *ichild = new QStandardItem(roomsName.at(c));
+                                    QStandardItem *ichild = new QStandardItem(roomsName[c]);
+                                       ichild->setAccessibleText(ts);
                                        ichild->setEditable(false);
                                        ichild->setIcon(QIcon("img/bed.png"));
                                     uii->appendRow(ichild);
@@ -364,23 +365,7 @@ void BatDialog::updateBatTree() {
                 }
 
 
-
-
-    /*QStandardItem *item = new QStandardItem("Batiment 1");
-    m_model->appendRow(item);
-    item->appendRow(new QStandardItem("Chambre Atible"));
-
-
-    QStandardItem *item2 = new QStandardItem("Batiment 2");
-    m_model->appendRow(item2);
-    item2->appendRow(new QStandardItem("Chambre Atible"));
-
-
-    QStandardItem *item3 = new QStandardItem("Batiment 3");
-    m_model->appendRow(item3);
-    item3->appendRow(new QStandardItem("Chambre Atible"));*/
-
-
+    
 }
 
 

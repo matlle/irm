@@ -23,7 +23,7 @@ class BatDialog : public QDialog {
       //BatDialog(QVariantList list, QWidget *parent);
       void updateBatTree();
       bool isBatHasCha(int);
-      QStringList getAllChaByBatId(int);
+      QMap<QString, QString> getAllChaByBatId(int);
 
     public slots:
       void saveNewBat();
